@@ -1,12 +1,14 @@
 [package]
 name = "schema-harvester"
 version = "0.1.0"
-edition = "2018"
+rust-version = "1.85.0"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 description = "Schema-Harvester is a crate derive a JSON schema from given JSON objects"
 repository = "https://github.com/elmarx/schema-harvester"
 homepage = "https://github.com/elmarx/schema-harvester"
 authors = ["Elmar Athmer <elmar@athmer.org>"]
+
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

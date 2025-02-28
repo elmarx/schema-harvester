@@ -1,5 +1,5 @@
 use schema_harvester::render_schema;
-use serde_json::{json, to_string_pretty, Value};
+use serde_json::{Value, json, to_string_pretty};
 
 #[test]
 fn test_distinct_object() {

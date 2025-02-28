@@ -117,34 +117,40 @@ mod test {
 
     #[test]
     fn test_merge_array_with_objects() {
-        let a = ArrayNode::new_many(btreeset![ObjectNode::new(btreemap! {
-            "id".to_string() => ObjectProperty {
-                node_type: IntegerNode::new().into(),
-                required: true
-            }
-        })
-        .into()]);
-        let b = ArrayNode::new_many(btreeset![ObjectNode::new(btreemap! {
-            "name".to_string() => ObjectProperty {
-                node_type: StringNode::new().into(),
-                required: true
-            }
-        })
-        .into()]);
+        let a = ArrayNode::new_many(btreeset![
+            ObjectNode::new(btreemap! {
+                "id".to_string() => ObjectProperty {
+                    node_type: IntegerNode::new().into(),
+                    required: true
+                }
+            })
+            .into()
+        ]);
+        let b = ArrayNode::new_many(btreeset![
+            ObjectNode::new(btreemap! {
+                "name".to_string() => ObjectProperty {
+                    node_type: StringNode::new().into(),
+                    required: true
+                }
+            })
+            .into()
+        ]);
 
         assert_eq!(
             merge_node_type(a.into(), b.into()),
-            ArrayNode::new_many(btreeset![ObjectNode::new(btreemap! {
-                "id".to_string() => ObjectProperty {
-                    node_type: IntegerNode::new().into(),
-                    required: false
-                },
-                "name".to_string() => ObjectProperty {
-                    node_type: StringNode::new().into(),
-                    required: false
-                }
-            })
-            .into()])
+            ArrayNode::new_many(btreeset![
+                ObjectNode::new(btreemap! {
+                    "id".to_string() => ObjectProperty {
+                        node_type: IntegerNode::new().into(),
+                        required: false
+                    },
+                    "name".to_string() => ObjectProperty {
+                        node_type: StringNode::new().into(),
+                        required: false
+                    }
+                })
+                .into()
+            ])
             .into()
         );
     }
