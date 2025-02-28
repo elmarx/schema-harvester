@@ -19,8 +19,6 @@ fn render_json_schema(schema: &SchemaHypothesis) -> Value {
 fn render_node(node_type: &NodeType) -> Value {
     match node_type {
         NodeType::String(_) => json!({"type": "string"}),
-        NodeType::DateTime(_) => json!({"type": "string", "format": "date-time"}),
-        NodeType::Date(_) => json!({"type": "string", "format": "date"}),
         NodeType::Integer(_) => json!({"type": "integer"}),
         NodeType::Number(_) => json!({"type": "number"}),
         NodeType::Boolean => json!({"type": "boolean"}),
@@ -93,7 +91,7 @@ mod test {
     #[test]
     fn test_object() {
         let hypothesis = SchemaHypothesis::new(ObjectNode::new(btreemap! {
-            "name".to_string() => ObjectProperty::new(StringNode::new()),
+            "name".to_string() => ObjectProperty::new(StringNode::default()),
         }));
 
         let actual = render_json_schema(&hypothesis);
@@ -117,7 +115,7 @@ mod test {
     #[test]
     fn test_array() {
         let hypothesis = SchemaHypothesis::new(ArrayNode::new_many(btreeset![
-            StringNode::new().into(),
+            StringNode::default().into(),
             IntegerNode::new().into()
         ]));
 
@@ -146,7 +144,7 @@ mod test {
     #[test]
     fn test_array_single_type() {
         let hypothesis =
-            SchemaHypothesis::new(ArrayNode::new_many(btreeset!(StringNode::new().into())));
+            SchemaHypothesis::new(ArrayNode::new_many(btreeset!(StringNode::default().into())));
 
         let actual = render_json_schema(&hypothesis);
 
@@ -174,7 +172,8 @@ mod test {
 
     #[test]
     fn test_any() {
-        let node_type = AnyNode::new(btreeset![StringNode::new().into(), NodeType::Boolean]).into();
+        let node_type =
+            AnyNode::new(btreeset![StringNode::default().into(), NodeType::Boolean]).into();
 
         let actual = render_node(&node_type);
 
@@ -191,7 +190,7 @@ mod test {
 
     #[test]
     fn test_any_one() {
-        let node_type = AnyNode::new(btreeset![StringNode::new().into()]).into();
+        let node_type = AnyNode::new(btreeset![StringNode::default().into()]).into();
 
         let actual = render_node(&node_type);
 

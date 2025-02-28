@@ -15,8 +15,6 @@ authors = ["Elmar Athmer <elmar@athmer.org>"]
 [dependencies]
 maplit = "1.0.2"
 serde_json = "1.0.139"
-chrono = "0.4.40"
 
 [dev-dependencies]
-parameterized = "2.0.0"
 jsonschema = "0.29.0"
