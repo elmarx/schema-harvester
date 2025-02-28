@@ -19,7 +19,7 @@ pub fn merge_hypothesis(a: SchemaHypothesis, b: SchemaHypothesis) -> SchemaHypot
 pub fn merge_node_type(a: NodeType, b: NodeType) -> NodeType {
     match (a, b) {
         (a, b) if a == b => a,
-        (NodeType::String(a), NodeType::String(b)) => string::merge(a, b).into(),
+        (NodeType::String(a), NodeType::String(b)) => string::merge(a, b),
         (NodeType::Object(a), NodeType::Object(b)) => merge_object(a, b).into(),
         (NodeType::Array(a), NodeType::Array(b)) => merge_array(a, b).into(),
         (NodeType::Any(xs), NodeType::Any(ys)) => any::merge_any(&xs, ys),
