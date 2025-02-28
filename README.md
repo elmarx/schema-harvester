@@ -6,8 +6,8 @@ Schema-Harvester
 Schema-Harvester is a tool that parses exsiting [JSON](https://www.json.org/json-en.html) documents
 and tries to derive a [JSON schema](https://json-schema.org/) from these documents.
 
-Usage
------
+CLI Usage
+---------
 
 Consume a file with line separated JSON documents:
 

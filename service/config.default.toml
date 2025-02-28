@@ -1,0 +1,12 @@
+# this file is sourced as default into the harvester at compile-time.
+
+# port for health-checks etc.
+management_port = 9000
+
+[kafka]
+# kafka-topic to publish schemas to (may also be set via HARVESTER_KAFKA_TOPIC="xyz")
+topic = "schemas"
+
+# rdkafka-properties, see https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md#global-configuration-properties
+# kafka-brokers to connect to, comma-separated list
+"bootstrap.servers" = "localhost:9092"
