@@ -1,16 +1,14 @@
-use crate::kafka::init_source;
+use crate::generator::init_task;
+use crate::kafka::{ConsumerExt, init_source};
 use crate::settings::Setting;
 use anyhow::Context;
-use futures::StreamExt;
 use rdkafka::Message;
-use rdkafka::consumer::{Consumer, DefaultConsumerContext, MessageStream};
-use rdkafka::producer::FutureRecord;
-use schema_harvester::{SchemaHypothesis, generate_hypothesis};
-use serde_json::Value;
-use std::time::Duration;
+use rdkafka::consumer::Consumer;
+use std::collections::HashMap;
 #[cfg(not(target_env = "msvc"))]
 use tikv_jemallocator::Jemalloc;
 
+mod generator;
 mod kafka;
 mod log;
 mod management;
@@ -37,60 +35,47 @@ async fn main() -> anyhow::Result<()> {
         &settings.config.kafka_sink,
         settings.kafka_sink_properties,
     )?;
-    let topic = settings.config.kafka_sink.topic;
+    let sink_topic = settings.config.kafka_sink.topic;
+
+    let topics = if settings
+        .config
+        .kafka_source
+        .topics
+        .contains(&"*".to_string())
+    {
+        consumer
+            .list_topics()
+            .await?
+            .into_iter()
+            .filter(|t| *t != sink_topic)
+            .collect()
+    } else {
+        settings.config.kafka_source.topics
+    };
+
+    let topics_ref = topics.iter().map(AsRef::as_ref).collect::<Vec<&str>>();
 
     consumer
-        .subscribe(&["events"])
-        .context("failed to subscribe to topic")?;
+        .subscribe(&topics_ref)
+        .context("failed to subscribe to topic(s)")?;
+
+    let topic_tasks: HashMap<_, _> = topics
+        .into_iter()
+        .map(init_task(&producer, &sink_topic))
+        .collect();
 
     tokio::task::spawn(management::run(settings.config.management_port));
 
-    let stream: MessageStream<DefaultConsumerContext> = consumer.stream();
-
-    // turn the stream of messages into a stream of schema hypothesis
-    let mut schema_stream = stream.map(|m| -> Result<Option<SchemaHypothesis>, anyhow::Error> {
-        let schema = m?
-            .payload_view::<str>()
-            .transpose()?
-            .map(serde_json::from_str::<Value>)
-            .transpose()?
-            .as_ref()
-            .map(generate_hypothesis);
-
-        Ok(schema)
-    });
-
-    let mut current_hypothesis: Option<SchemaHypothesis> = None;
-
     loop {
-        let new = schema_stream.next().await.unwrap();
+        let message = consumer.recv().await?;
+        let topic = message.topic().to_string();
 
-        // generate a new hypothesis
-        let new_hypothesis = match (current_hypothesis.clone(), new) {
-            (None, Ok(h)) => h,
-            (Some(cur), Ok(None)) => Some(cur),
-            (Some(cur), Ok(Some(new))) => Some(schema_harvester::merge_hypothesis(cur, new)),
-            (cur, Err(e)) => {
-                eprintln!("{:#?}", e);
-                cur
-            }
-        };
+        let task = topic_tasks
+            .get(&topic)
+            .context("got a message for a topic we're not subscribed to")?;
 
-        // if the merged hypothesis is a different one than the one we used to know, print it
-        if new_hypothesis != current_hypothesis {
-            current_hypothesis = new_hypothesis;
-            let current_hypothesis =
-                schema_harvester::render_schema(current_hypothesis.as_ref().unwrap());
-            let record = FutureRecord::to(topic.as_str())
-                .key("events")
-                .payload(&current_hypothesis);
-            let delivery_status = producer
-                .send::<_, _, _>(record, Duration::from_secs(0))
-                .await;
-
-            delivery_status.unwrap();
-        }
+        task.send(message.detach())
+            .await
+            .context("failed to send message to handler")?;
     }
-
-    Ok(())
 }

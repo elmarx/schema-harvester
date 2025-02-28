@@ -1,6 +1,9 @@
 use crate::settings::{Kafka, KafkaSink, KafkaSource};
 use anyhow::Context;
 use rdkafka::ClientConfig;
+use rdkafka::consumer::{Consumer, StreamConsumer};
+use rdkafka::error::KafkaResult;
+use std::time::Duration;
 
 pub fn init_source(
     default_config: &Kafka,
@@ -46,4 +49,29 @@ pub fn init_sink(
     cfg.extend(sink_properties);
 
     cfg.create().context("invalid kafka sink configuration")
+}
+
+pub trait ConsumerExt {
+    async fn list_topics(&self) -> KafkaResult<Vec<String>>;
+}
+
+impl ConsumerExt for StreamConsumer {
+    async fn list_topics(&self) -> KafkaResult<Vec<String>> {
+        let metadata = self.fetch_metadata(None, Duration::from_secs(60))?;
+
+        let topics = metadata
+            .topics()
+            .iter()
+            .filter_map(|t| {
+                let name = t.name();
+                if name.starts_with("_") {
+                    None
+                } else {
+                    Some(name.to_string())
+                }
+            })
+            .collect();
+
+        Ok(topics)
+    }
 }

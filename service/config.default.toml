@@ -21,6 +21,12 @@ logging = "human" # or "json"
 # all kafka-properties can be overriden here, e.g. to connect to a read-only cluster
 # "sasl.username" = "harvester-read-only"
 
+# scan all topics readable. The special value "*" may be used to read all topics
+# TODO: support regex/wildcards/globbing
+topics = [
+    "*"
+]
+
 # kafka cluster to publish to
 [kafka_sink]
 # kafka-topic to publish schemas to (may also be set via HARVESTER_KAFKA_TOPIC="xyz")

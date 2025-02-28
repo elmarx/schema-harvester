@@ -47,6 +47,8 @@ pub struct Kafka {
 
 #[derive(Debug, Deserialize)]
 pub struct KafkaSource {
+    #[serde(default)]
+    pub topics: Vec<String>,
     #[serde(flatten, default)]
     pub properties: HashMap<String, KafkaPropertyValue>,
 }
