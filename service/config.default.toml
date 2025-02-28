@@ -3,10 +3,23 @@
 # port for health-checks etc.
 management_port = 9000
 
+# defaults for source and sink, may be overridden.
+# leave source and sink empty to use the same kafka-cluster for both.
 [kafka]
+# common rdkafka-properties, see https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md#global-configuration-properties
+# kafka-brokers to connect to, comma-separated list
+"bootstrap.servers" = "localhost:9092"
+
+# kafka cluster to harvest from
+[kafka_source]
+"group.id" = "schema-harvester"
+# all kafka-properties can be overriden here, e.g. to connect to a read-only cluster
+# "sasl.username" = "harvester-read-only"
+
+# kafka cluster to publish to
+[kafka_sink]
 # kafka-topic to publish schemas to (may also be set via HARVESTER_KAFKA_TOPIC="xyz")
 topic = "schemas"
 
-# rdkafka-properties, see https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md#global-configuration-properties
-# kafka-brokers to connect to, comma-separated list
-"bootstrap.servers" = "localhost:9092"
+# same as for the source, kafka-properties can be overridden here, e.g. to publish schemas to a different cluster
+# "sasl.username" = "harvester-write-only"
