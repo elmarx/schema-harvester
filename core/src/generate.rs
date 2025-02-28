@@ -1,10 +1,9 @@
-use chrono::{DateTime, NaiveDate};
-use serde_json::{Map, Number, Value};
+use serde_json::{Map, Value};
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::model::{
-    AnyNode, ArrayNode, DateNode, DateTimeNode, IntegerNode, NodeType, NumberNode, ObjectNode,
-    ObjectProperty, SchemaHypothesis, StringNode,
+    AnyNode, ArrayNode, IntegerNode, NodeType, NumberNode, ObjectNode, ObjectProperty,
+    SchemaHypothesis, StringNode,
 };
 use crate::utils::SetVariances;
 
@@ -27,8 +26,9 @@ fn generate_node_type(dom: &Value) -> NodeType {
     match dom {
         Value::Null => NodeType::Null,
         Value::Bool(_) => NodeType::Boolean,
-        Value::Number(i) => map_number_to_node(i),
-        Value::String(s) => map_string_to_node(s),
+        Value::Number(i) if i.is_f64() => NumberNode::new().into(),
+        Value::Number(_) => IntegerNode::new().into(),
+        Value::String(s) => StringNode::from(s.as_str()).into(),
         Value::Array(array_values) => {
             if array_values.is_empty() {
                 ArrayNode::new_untyped().into()
@@ -38,22 +38,6 @@ fn generate_node_type(dom: &Value) -> NodeType {
         }
         Value::Object(props) => ObjectNode::new(generate_properties(props)).into(),
     }
-}
-
-fn map_number_to_node(nr: &Number) -> NodeType {
-    if nr.is_f64() {
-        return NumberNode::new().into();
-    }
-    IntegerNode::new().into()
-}
-
-fn map_string_to_node(text: &str) -> NodeType {
-    if DateTime::parse_from_rfc3339(text).is_ok() {
-        return DateTimeNode::new().into();
-    } else if NaiveDate::parse_from_str(text, "%F").is_ok() {
-        return DateNode::new().into();
-    }
-    StringNode::new().into()
 }
 
 fn generate_node_type_for_array_values(array_values: &[Value]) -> NodeType {
@@ -106,13 +90,12 @@ pub fn generate_hypothesis(dom: &Value) -> SchemaHypothesis {
 #[cfg(test)]
 mod test {
     use maplit::{btreemap, btreeset};
-    use parameterized::parameterized;
     use serde_json::json;
 
     use crate::generate::generate_node_type;
     use crate::model::{
-        AnyNode, ArrayNode, DateNode, DateTimeNode, IntegerNode, NodeType, NumberNode, ObjectNode,
-        ObjectProperty, StringNode,
+        AnyNode, ArrayNode, IntegerNode, NodeType, NumberNode, ObjectNode, ObjectProperty,
+        StringNode,
     };
 
     #[test]
@@ -141,33 +124,8 @@ mod test {
 
     #[test]
     fn test_string() {
-        let dom = json!("Schema -harvester");
-        assert_eq!(generate_node_type(&dom), StringNode::new().into());
-    }
-
-    #[parameterized(dt = {
-                                "2000-01-01T00:00:00.000Z",
-                                "2000-13-01T00:00:00.000Z",
-                                "2000-02-30T00:00:00.000Z",
-                                "2000-01-01T25:00:00.000Z",
-                                "abcde",
-                                "2000-01-01",
-                                "2000-13-01",
-                                "2000-02-30",
-                        },
-                        expected = {
-                                DateTimeNode::new().into(),
-                                StringNode::new().into(),
-                                StringNode::new().into(),
-                                StringNode::new().into(),
-                                StringNode::new().into(),
-                                DateNode::new().into(),
-                                StringNode::new().into(),
-                                StringNode::new().into(),
-                        })]
-    fn test_string_mapping(dt: &str, expected: NodeType) {
-        let dom = json!(dt);
-        assert_eq!(generate_node_type(&dom), expected);
+        let dom = json!("Schema-harvester");
+        assert_eq!(generate_node_type(&dom), StringNode::default().into());
     }
 
     #[test]
@@ -175,11 +133,11 @@ mod test {
         let dom = json!(["one", 1, {"a": 1}, {"a": "1"}]);
         let actual = generate_node_type(&dom);
         let expected = ArrayNode::new_many(btreeset! {
-            StringNode::new().into(),
+            StringNode::default().into(),
             IntegerNode::new().into(),
             ObjectNode::new(btreemap! {
                     "a".to_string() => ObjectProperty { required: true, node_type: AnyNode::new(
-                        btreeset! { StringNode::new().into(), IntegerNode::new().into() }
+                        btreeset! { StringNode::default().into(), IntegerNode::new().into() }
                     ).into()}
                 }).into()
         })
@@ -211,7 +169,7 @@ mod test {
             generate_node_type(&dom),
             ArrayNode::new_many(btreeset![
                 IntegerNode::new().into(),
-                StringNode::new().into()
+                StringNode::default().into()
             ])
             .into()
         );
@@ -224,7 +182,7 @@ mod test {
             "length": 100
         });
         let expected = ObjectNode::new(btreemap! {
-            "name".to_string() => ObjectProperty::new(StringNode::new()),
+            "name".to_string() => ObjectProperty::new(StringNode::default()),
             "length".to_string() => ObjectProperty::new(IntegerNode::new()),
         })
         .into();

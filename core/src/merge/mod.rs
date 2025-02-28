@@ -1,6 +1,6 @@
 use crate::merge::array::merge_array;
 use crate::merge::object::merge_object;
-use crate::model::{AnyNode, DateNode, DateTimeNode, NodeType, SchemaHypothesis, StringNode};
+use crate::model::{AnyNode, NodeType, SchemaHypothesis};
 use maplit::btreeset;
 
 mod any;
@@ -18,18 +18,6 @@ pub fn merge_node_type(a: NodeType, b: NodeType) -> NodeType {
     match (a, b) {
         (a, b) if a == b => a,
         (NodeType::Object(a), NodeType::Object(b)) => merge_object(a, b).into(),
-        (NodeType::Date(_), NodeType::String(_)) | (NodeType::String(_), NodeType::Date(_)) => {
-            StringNode::new().into()
-        }
-        (NodeType::DateTime(_), NodeType::String(_))
-        | (NodeType::String(_), NodeType::DateTime(_)) => StringNode::new().into(),
-        (NodeType::Date(_), NodeType::DateTime(_)) | (NodeType::DateTime(_), NodeType::Date(_)) => {
-            AnyNode::new(btreeset![
-                DateNode::new().into(),
-                DateTimeNode::new().into()
-            ])
-            .into()
-        }
         (NodeType::Array(a), NodeType::Array(b)) => merge_array(a, b).into(),
         (NodeType::Any(xs), NodeType::Any(ys)) => any::merge_any(&xs, ys),
         (a @ NodeType::Any(_), b) | (b, a @ NodeType::Any(_)) => {
@@ -48,18 +36,18 @@ mod test {
 
     use crate::merge::{merge_hypothesis, merge_node_type};
     use crate::model::{
-        AnyNode, ArrayNode, DateNode, DateTimeNode, IntegerNode, NodeType, ObjectNode,
-        ObjectProperty, SchemaHypothesis, StringNode,
+        AnyNode, ArrayNode, IntegerNode, NodeType, ObjectNode, ObjectProperty, SchemaHypothesis,
+        StringNode,
     };
 
     #[test]
     fn test_merge_string() {
-        let a = SchemaHypothesis::new(StringNode::new());
-        let b = SchemaHypothesis::new(StringNode::new());
+        let a = SchemaHypothesis::new(StringNode::default());
+        let b = SchemaHypothesis::new(StringNode::default());
 
         let actual = merge_hypothesis(a, b);
 
-        assert_eq!(actual, SchemaHypothesis::new(StringNode::new()));
+        assert_eq!(actual, SchemaHypothesis::new(StringNode::default()));
     }
 
     #[test]
@@ -99,7 +87,7 @@ mod test {
     fn test_merge_array_with_different_types() {
         let a = ArrayNode::new_many(btreeset![
             IntegerNode::new().into(),
-            StringNode::new().into()
+            StringNode::default().into()
         ])
         .into();
         let b = ArrayNode::new_many(btreeset![IntegerNode::new().into(), NodeType::Boolean]).into();
@@ -108,7 +96,7 @@ mod test {
             merge_node_type(a, b),
             ArrayNode::new_many(btreeset![
                 IntegerNode::new().into(),
-                StringNode::new().into(),
+                StringNode::default().into(),
                 NodeType::Boolean
             ])
             .into()
@@ -129,7 +117,7 @@ mod test {
         let b = ArrayNode::new_many(btreeset![
             ObjectNode::new(btreemap! {
                 "name".to_string() => ObjectProperty {
-                    node_type: StringNode::new().into(),
+                    node_type: StringNode::default().into(),
                     required: true
                 }
             })
@@ -145,7 +133,7 @@ mod test {
                         required: false
                     },
                     "name".to_string() => ObjectProperty {
-                        node_type: StringNode::new().into(),
+                        node_type: StringNode::default().into(),
                         required: false
                     }
                 })
@@ -158,19 +146,19 @@ mod test {
     #[test]
     fn test_merge_object_additional_property_b() {
         let a = SchemaHypothesis::new(ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::new())
+            String::from("id") => ObjectProperty::new(StringNode::default())
         }));
 
         let b = SchemaHypothesis::new(ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::new()),
-            String::from("name") => ObjectProperty::new(StringNode::new())
+            String::from("id") => ObjectProperty::new(StringNode::default()),
+            String::from("name") => ObjectProperty::new(StringNode::default())
         }));
 
         let actual = merge_hypothesis(a, b);
 
         let expected = SchemaHypothesis::new(ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::new()),
-            String::from("name") => ObjectProperty::new(StringNode::new()).optional()
+            String::from("id") => ObjectProperty::new(StringNode::default()),
+            String::from("name") => ObjectProperty::new(StringNode::default()).optional()
         }));
 
         assert_eq!(actual, expected);
@@ -179,18 +167,18 @@ mod test {
     #[test]
     fn test_merge_object_property_missing_in_b() {
         let a = SchemaHypothesis::new(ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::new()),
-            String::from("name") => ObjectProperty::new(StringNode::new())
+            String::from("id") => ObjectProperty::new(StringNode::default()),
+            String::from("name") => ObjectProperty::new(StringNode::default())
         }));
 
         let b = SchemaHypothesis::new(ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::new()),
+            String::from("id") => ObjectProperty::new(StringNode::default()),
         }));
 
         let actual = merge_hypothesis(a, b);
         let expected = SchemaHypothesis::new(ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::new()),
-            String::from("name") => ObjectProperty::new(StringNode::new()).optional()
+            String::from("id") => ObjectProperty::new(StringNode::default()),
+            String::from("name") => ObjectProperty::new(StringNode::default()).optional()
         }));
 
         assert_eq!(actual, expected);
@@ -198,7 +186,7 @@ mod test {
 
     #[test]
     fn test_merge_different_types() {
-        let a = StringNode::new().into();
+        let a = StringNode::default().into();
         let b = IntegerNode::new().into();
 
         let actual = merge_node_type(a, b);
@@ -206,7 +194,7 @@ mod test {
         assert_eq!(
             actual,
             AnyNode::new(btreeset![
-                StringNode::new().into(),
+                StringNode::default().into(),
                 IntegerNode::new().into()
             ])
             .into()
@@ -216,7 +204,7 @@ mod test {
     #[test]
     fn test_merge_any_and_type() {
         let a = AnyNode::new(btreeset![IntegerNode::new().into()]).into();
-        let b = StringNode::new().into();
+        let b = StringNode::default().into();
 
         let actual = merge_node_type(a, b);
 
@@ -224,7 +212,7 @@ mod test {
             actual,
             AnyNode::new(btreeset![
                 IntegerNode::new().into(),
-                StringNode::new().into()
+                StringNode::default().into()
             ])
             .into()
         );
@@ -232,7 +220,7 @@ mod test {
 
     #[test]
     fn test_merge_type_and_any() {
-        let a = StringNode::new().into();
+        let a = StringNode::default().into();
         let b = AnyNode::new(btreeset![IntegerNode::new().into()]).into();
 
         let actual = merge_node_type(a, b);
@@ -241,7 +229,7 @@ mod test {
             actual,
             AnyNode::new(btreeset![
                 IntegerNode::new().into(),
-                StringNode::new().into()
+                StringNode::default().into()
             ])
             .into()
         );
@@ -250,60 +238,19 @@ mod test {
     #[test]
     fn test_merge_existing_type_and_any() {
         let a = AnyNode::new(btreeset![
-            StringNode::new().into(),
+            StringNode::default().into(),
             IntegerNode::new().into()
         ])
         .into();
-        let b = StringNode::new().into();
+        let b = StringNode::default().into();
 
         let actual = merge_node_type(a, b);
 
         assert_eq!(
             actual,
             AnyNode::new(btreeset![
-                StringNode::new().into(),
+                StringNode::default().into(),
                 IntegerNode::new().into()
-            ])
-            .into()
-        );
-    }
-
-    #[test]
-    fn test_merge_datetime_and_string() {
-        let actual = merge_node_type(DateTimeNode::new().into(), StringNode::new().into());
-        assert_eq!(actual, StringNode::new().into());
-
-        let actual_swapped = merge_node_type(StringNode::new().into(), DateTimeNode::new().into());
-        assert_eq!(actual_swapped, StringNode::new().into());
-    }
-
-    #[test]
-    fn test_merge_date_and_string() {
-        let actual = merge_node_type(DateNode::new().into(), StringNode::new().into());
-        assert_eq!(actual, StringNode::new().into());
-
-        let actual_swapped = merge_node_type(StringNode::new().into(), DateNode::new().into());
-        assert_eq!(actual_swapped, StringNode::new().into());
-    }
-
-    #[test]
-    fn test_merge_date_and_datetime() {
-        let actual = merge_node_type(DateTimeNode::new().into(), DateNode::new().into());
-        assert_eq!(
-            actual,
-            AnyNode::new(btreeset![
-                DateNode::new().into(),
-                DateTimeNode::new().into()
-            ])
-            .into()
-        );
-
-        let actual_swapped = merge_node_type(DateNode::new().into(), DateTimeNode::new().into());
-        assert_eq!(
-            actual_swapped,
-            AnyNode::new(btreeset![
-                DateNode::new().into(),
-                DateTimeNode::new().into()
             ])
             .into()
         );
