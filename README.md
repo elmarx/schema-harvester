@@ -1,7 +1,7 @@
 Schema-Harvester
 ================
 
-[![Rust](https://github.com/elmarx/schema-harvester/actions/workflows/rust.yml)]
+[![Tests](https://github.com/elmarx/schema-harvester/actions/workflows/test.yml)]
 
 Schema-Harvester is a tool that parses exsiting [JSON](https://www.json.org/json-en.html) documents and tries to derive a [JSON schema](https://json-schema.org/) from these documents.
 
