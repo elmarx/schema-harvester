@@ -5,6 +5,7 @@ use tikv_jemallocator::Jemalloc;
 
 mod management;
 mod settings;
+mod utils;
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
