@@ -1,9 +1,10 @@
 Schema-Harvester
 ================
 
-[![Rust](https://github.com/elmarx/schema-harvester/actions/workflows/rust.yml)]
+[![Tests](https://github.com/elmarx/schema-harvester/actions/workflows/test.yaml/badge.svg)](https://github.com/elmarx/schema-harvester/actions/workflows/test.yaml)
 
-Schema-Harvester is a tool that parses exsiting [JSON](https://www.json.org/json-en.html) documents and tries to derive a [JSON schema](https://json-schema.org/) from these documents.
+Schema-Harvester is a tool that parses exsiting [JSON](https://www.json.org/json-en.html) documents
+and tries to derive a [JSON schema](https://json-schema.org/) from these documents.
 
 Usage
 -----
@@ -28,7 +29,8 @@ $ kcat -b $KAFKA_BROKER_ADDRESS_LIST -t your_topic | schema-harvester
 
 ### Verify schemas
 
-You may use any JSON schema validator to validate the input documents with the derived schema. This example uses [yajsv](https://github.com/neilpa/yajsv):
+You may use any JSON schema validator to validate the input documents with the derived schema. This
+example uses [yajsv](https://github.com/neilpa/yajsv):
 
 ```shell
 yajsv -s schema.json line_separated.json
