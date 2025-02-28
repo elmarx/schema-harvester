@@ -6,8 +6,27 @@ Schema-Harvester
 Schema-Harvester is a tool that parses exsiting [JSON](https://www.json.org/json-en.html) documents
 and tries to derive a [JSON schema](https://json-schema.org/) from these documents.
 
-CLI Usage
----------
+It comes with different "frontends" to consume JSON documents from different sources, currently via
+CLI or from Kafka.
+
+## Kafka-Service usage
+
+You need a kafka-topic where the service publishes schemas to. Schemas are published with the
+source-topic as key.
+
+It makes sense to enable log-compaction (`cleanup.policy=compact`) for the schema-topic, but of
+course this is optional.
+
+Create a `config.toml` (e.g. copy [`config.sample.toml`](./service/config.sample.toml),
+see [`config.default.toml](./service/config.default.toml) for all options) and start the service:
+
+```shell
+harvesterd
+```
+
+By default, it consumes all topics it has access to.
+
+## CLI Usage
 
 Consume a file with line separated JSON documents:
 
