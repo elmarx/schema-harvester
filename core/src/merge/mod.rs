@@ -10,6 +10,7 @@ mod object_property;
 mod string;
 
 #[must_use]
+#[deprecated(since = "0.1.0", note = "Use `merge_node_type` instead")]
 pub fn merge_hypothesis(a: SchemaHypothesis, b: SchemaHypothesis) -> SchemaHypothesis {
     let root = merge_node_type(a.root, b.root);
     SchemaHypothesis { root }
@@ -36,59 +37,57 @@ pub fn merge_node_type(a: NodeType, b: NodeType) -> NodeType {
 mod test {
     use maplit::{btreemap, btreeset};
 
-    use crate::merge::{merge_hypothesis, merge_node_type};
+    use crate::merge::merge_node_type;
     use crate::model::{
-        AnyNode, ArrayNode, IntegerNode, NodeType, ObjectNode, ObjectProperty, SchemaHypothesis,
-        StringFormat, StringNode,
+        AnyNode, ArrayNode, IntegerNode, NodeType, ObjectNode, ObjectProperty, StringFormat,
+        StringNode,
     };
 
     #[test]
     fn test_merge_string() {
-        let a = SchemaHypothesis::new(StringNode::default());
-        let b = SchemaHypothesis::new(StringNode::default());
+        let a = StringNode::default();
+        let b = StringNode::default();
 
-        let actual = merge_hypothesis(a, b);
+        let actual = merge_node_type(a.into(), b.into());
 
-        assert_eq!(actual, SchemaHypothesis::new(StringNode::default()));
+        assert_eq!(actual, StringNode::default().into());
     }
 
     #[test]
     fn test_merge_string_with_same_format() {
-        let a = SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)));
-        let b = SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)));
+        let a = StringNode::new(Some(StringFormat::DateTime));
+        let b = StringNode::new(Some(StringFormat::DateTime));
 
-        let actual = merge_hypothesis(a, b);
+        let actual = merge_node_type(a.into(), b.into());
 
-        assert_eq!(
-            actual,
-            SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)))
-        );
+        assert_eq!(actual, StringNode::new(Some(StringFormat::DateTime)).into());
     }
 
     #[test]
     fn test_merge_string_with_different_format() {
-        let a = SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)));
-        let b = SchemaHypothesis::new(StringNode::new(Some(StringFormat::Time)));
+        let a = StringNode::new(Some(StringFormat::DateTime));
+        let b = StringNode::new(Some(StringFormat::Time));
 
-        let actual = merge_hypothesis(a, b);
+        let actual = merge_node_type(a.into(), b.into());
 
         assert_eq!(
             actual,
-            SchemaHypothesis::new(AnyNode::new(btreeset![
+            AnyNode::new(btreeset![
                 StringNode::new(Some(StringFormat::DateTime)).into(),
                 StringNode::new(Some(StringFormat::Time)).into()
-            ]))
+            ])
+            .into()
         );
     }
 
     #[test]
     fn test_merge_string_with_format_and_no_format() {
-        let a = SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)));
-        let b = SchemaHypothesis::new(StringNode::new(None));
+        let a = StringNode::new(Some(StringFormat::DateTime));
+        let b = StringNode::new(None);
 
-        let actual = merge_hypothesis(a, b);
+        let actual = merge_node_type(a.into(), b.into());
 
-        assert_eq!(actual, SchemaHypothesis::new(StringNode::default()));
+        assert_eq!(actual, StringNode::default().into());
     }
 
     #[test]
@@ -186,41 +185,43 @@ mod test {
 
     #[test]
     fn test_merge_object_additional_property_b() {
-        let a = SchemaHypothesis::new(ObjectNode::new(btreemap! {
+        let a = ObjectNode::new(btreemap! {
             String::from("id") => ObjectProperty::new(StringNode::default())
-        }));
+        });
 
-        let b = SchemaHypothesis::new(ObjectNode::new(btreemap! {
+        let b = ObjectNode::new(btreemap! {
             String::from("id") => ObjectProperty::new(StringNode::default()),
             String::from("name") => ObjectProperty::new(StringNode::default())
-        }));
+        });
 
-        let actual = merge_hypothesis(a, b);
+        let actual = merge_node_type(a.into(), b.into());
 
-        let expected = SchemaHypothesis::new(ObjectNode::new(btreemap! {
+        let expected = ObjectNode::new(btreemap! {
             String::from("id") => ObjectProperty::new(StringNode::default()),
             String::from("name") => ObjectProperty::new(StringNode::default()).optional()
-        }));
+        })
+        .into();
 
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn test_merge_object_property_missing_in_b() {
-        let a = SchemaHypothesis::new(ObjectNode::new(btreemap! {
+        let a = ObjectNode::new(btreemap! {
             String::from("id") => ObjectProperty::new(StringNode::default()),
             String::from("name") => ObjectProperty::new(StringNode::default())
-        }));
+        });
 
-        let b = SchemaHypothesis::new(ObjectNode::new(btreemap! {
+        let b = ObjectNode::new(btreemap! {
             String::from("id") => ObjectProperty::new(StringNode::default()),
-        }));
+        });
 
-        let actual = merge_hypothesis(a, b);
-        let expected = SchemaHypothesis::new(ObjectNode::new(btreemap! {
+        let actual = merge_node_type(a.into(), b.into());
+        let expected = ObjectNode::new(btreemap! {
             String::from("id") => ObjectProperty::new(StringNode::default()),
             String::from("name") => ObjectProperty::new(StringNode::default()).optional()
-        }));
+        })
+        .into();
 
         assert_eq!(actual, expected);
     }
