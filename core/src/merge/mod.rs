@@ -7,6 +7,7 @@ mod any;
 mod array;
 mod object;
 mod object_property;
+mod string;
 
 #[must_use]
 pub fn merge_hypothesis(a: SchemaHypothesis, b: SchemaHypothesis) -> SchemaHypothesis {
@@ -17,6 +18,7 @@ pub fn merge_hypothesis(a: SchemaHypothesis, b: SchemaHypothesis) -> SchemaHypot
 pub fn merge_node_type(a: NodeType, b: NodeType) -> NodeType {
     match (a, b) {
         (a, b) if a == b => a,
+        (NodeType::String(a), NodeType::String(b)) => string::merge(a, b).into(),
         (NodeType::Object(a), NodeType::Object(b)) => merge_object(a, b).into(),
         (NodeType::Array(a), NodeType::Array(b)) => merge_array(a, b).into(),
         (NodeType::Any(xs), NodeType::Any(ys)) => any::merge_any(&xs, ys),
@@ -37,13 +39,52 @@ mod test {
     use crate::merge::{merge_hypothesis, merge_node_type};
     use crate::model::{
         AnyNode, ArrayNode, IntegerNode, NodeType, ObjectNode, ObjectProperty, SchemaHypothesis,
-        StringNode,
+        StringFormat, StringNode,
     };
 
     #[test]
     fn test_merge_string() {
         let a = SchemaHypothesis::new(StringNode::default());
         let b = SchemaHypothesis::new(StringNode::default());
+
+        let actual = merge_hypothesis(a, b);
+
+        assert_eq!(actual, SchemaHypothesis::new(StringNode::default()));
+    }
+
+    #[test]
+    fn test_merge_string_with_same_format() {
+        let a = SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)));
+        let b = SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)));
+
+        let actual = merge_hypothesis(a, b);
+
+        assert_eq!(
+            actual,
+            SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)))
+        );
+    }
+
+    #[test]
+    fn test_merge_string_with_different_format() {
+        let a = SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)));
+        let b = SchemaHypothesis::new(StringNode::new(Some(StringFormat::Time)));
+
+        let actual = merge_hypothesis(a, b);
+
+        assert_eq!(
+            actual,
+            SchemaHypothesis::new(AnyNode::new(btreeset![
+                StringNode::new(Some(StringFormat::DateTime)).into(),
+                StringNode::new(Some(StringFormat::Time)).into()
+            ]))
+        );
+    }
+
+    #[test]
+    fn test_merge_string_with_format_and_no_format() {
+        let a = SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)));
+        let b = SchemaHypothesis::new(StringNode::new(None));
 
         let actual = merge_hypothesis(a, b);
 
