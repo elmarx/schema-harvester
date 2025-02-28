@@ -1,5 +1,16 @@
-use schema_harvester::render_schema;
+use schema_harvester::model::NodeType;
+use schema_harvester::{SchemaHypothesis, render_schema};
 use serde_json::{Value, json, to_string_pretty};
+
+#[must_use]
+pub fn generate_hypothesis(dom: &Value) -> SchemaHypothesis {
+    SchemaHypothesis {
+        id: "https:://github.com/elmarx/schema-harvester".to_string(),
+        title: "Sample".to_string(),
+        description: "Auto-generated schema".to_string(),
+        root: Some(NodeType::from(dom)),
+    }
+}
 
 #[test]
 fn test_distinct_object() {
@@ -24,12 +35,16 @@ fn test_distinct_object() {
       }
     ]);
 
-    let schema = schema_harvester::generate_hypothesis(&document);
+    let schema = generate_hypothesis(&document);
 
     let result = render_schema(&schema);
     let schema_json: Value = serde_json::from_str(&result).unwrap();
 
     let expected = json!({
+        "$id": "https:://github.com/elmarx/schema-harvester",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Sample",
+        "description": "Auto-generated schema",
       "type": "array",
       "items": {
         "properties": {
@@ -86,12 +101,16 @@ fn test_single_object() {
       }
     ]);
 
-    let schema = schema_harvester::generate_hypothesis(&document);
+    let schema = generate_hypothesis(&document);
 
     let result = render_schema(&schema);
     let schema_json: Value = serde_json::from_str(&result).unwrap();
 
     let expected = json!({
+        "$id": "https:://github.com/elmarx/schema-harvester",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Sample",
+        "description": "Auto-generated schema",
       "type": "array",
       "items": {
         "properties": {
@@ -150,12 +169,16 @@ fn test_single_nested_object() {
         }
     ]);
 
-    let schema = schema_harvester::generate_hypothesis(&document);
+    let schema = generate_hypothesis(&document);
 
     let result = render_schema(&schema);
     let schema_json: Value = serde_json::from_str(&result).unwrap();
 
     let expected = json!({
+        "$id": "https:://github.com/elmarx/schema-harvester",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Sample",
+        "description": "Auto-generated schema",
           "type": "array",
           "items": {
               "type": "object",
@@ -191,12 +214,16 @@ fn test_single_nested_object() {
 fn test_array_merging() {
     let document = json!([[1], ["1"]]);
 
-    let schema = schema_harvester::generate_hypothesis(&document);
+    let schema = generate_hypothesis(&document);
 
     let result = render_schema(&schema);
     let schema_json: Value = serde_json::from_str(&result).unwrap();
 
     let expected = json!({
+        "$id": "https:://github.com/elmarx/schema-harvester",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Sample",
+        "description": "Auto-generated schema",
           "type": "array",
           "items": {
               "type": "array",

@@ -23,9 +23,7 @@ mod test {
     use maplit::btreeset;
     use serde_json::json;
 
-    use crate::model::{
-        ArrayNode, IntegerNode, NodeType, StringNode,
-    };
+    use crate::model::{ArrayNode, IntegerNode, NodeType, StringNode};
     use crate::renderer::Render;
 
     #[test]

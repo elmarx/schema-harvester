@@ -1,4 +1,5 @@
 use clap::Parser;
+use schema_harvester::model::NodeType;
 use schema_harvester::{SchemaHypothesis, render_schema};
 use std::error::Error;
 use std::fs::File;
@@ -12,19 +13,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     let deserializer = serde_json::Deserializer::from_reader(reader);
     let iterator = deserializer.into_iter::<serde_json::Value>();
 
-    let mut current_hypothesis: Option<SchemaHypothesis> = None;
+    let mut current_hypothesis = SchemaHypothesis::new(
+        "https:://github.com/elmarx/schema-harvester".to_string(),
+        "Sample".to_string(),
+        "Auto-generated schema".to_string(),
+    );
 
     for json_document in iterator {
-        let new_hypo = schema_harvester::generate_hypothesis(&json_document?);
-        if current_hypothesis.is_none() {
-            current_hypothesis = Some(new_hypo);
-        } else {
-            current_hypothesis =
-                current_hypothesis.map(|cur| schema_harvester::merge_hypothesis(cur, new_hypo));
-        }
+        let new_hypo: NodeType = (&json_document?).into();
+        current_hypothesis = current_hypothesis.merge(new_hypo);
     }
 
-    let result = render_schema(&current_hypothesis.unwrap());
+    let result = render_schema(&current_hypothesis);
 
     println!("{result}");
 

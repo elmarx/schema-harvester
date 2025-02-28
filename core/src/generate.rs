@@ -2,8 +2,7 @@ use serde_json::{Map, Value};
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::model::{
-    AnyNode, ArrayNode, IntegerNode, NodeType, NumberNode, ObjectNode, ObjectProperty,
-    SchemaHypothesis, StringNode,
+    AnyNode, ArrayNode, IntegerNode, NodeType, NumberNode, ObjectNode, ObjectProperty, StringNode,
 };
 use crate::utils::SetVariances;
 
@@ -79,13 +78,6 @@ fn generate_node_type_for_array_values(array_values: &[Value]) -> NodeType {
         SetVariances::Empty => unreachable!(),
         SetVariances::OneElement(node_type) => node_type.clone(),
         SetVariances::Multiple(_) => AnyNode::new(types).into(),
-    }
-}
-
-#[must_use]
-pub fn generate_hypothesis(dom: &Value) -> SchemaHypothesis {
-    SchemaHypothesis {
-        root: NodeType::from(dom),
     }
 }
 
