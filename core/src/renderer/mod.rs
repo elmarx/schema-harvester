@@ -5,6 +5,7 @@ mod any;
 mod array;
 mod node;
 mod object;
+mod schema;
 mod string;
 
 #[must_use]
@@ -14,7 +15,7 @@ pub fn render_schema(schema: &SchemaHypothesis) -> String {
 }
 
 fn render_json_schema(schema: &SchemaHypothesis) -> Value {
-    schema.root.render()
+    schema.render()
 }
 
 trait Render {

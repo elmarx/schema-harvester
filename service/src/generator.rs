@@ -1,7 +1,8 @@
 use rdkafka::Message;
 use rdkafka::message::OwnedMessage;
 use rdkafka::producer::{FutureProducer, FutureRecord};
-use schema_harvester::{SchemaHypothesis, generate_hypothesis, render_schema};
+use schema_harvester::model::NodeType;
+use schema_harvester::{SchemaHypothesis, render_schema};
 use std::time::Duration;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tracing::info;
@@ -29,7 +30,11 @@ pub async fn task(
     sink_topic: String,
     mut rx: Receiver<OwnedMessage>,
 ) {
-    let mut current_hypothesis: Option<SchemaHypothesis> = None;
+    let mut current_hypothesis = SchemaHypothesis::new(
+        "https:://github.com/elmarx/schema-harvester".to_string(),
+        source_topic.clone(),
+        format!("Auto-generated schema for {}", source_topic),
+    );
 
     while let Some(message) = rx.recv().await {
         let payload = message.payload();
@@ -42,17 +47,14 @@ pub async fn task(
         // TODO: proper error-handling
         let payload = payload.unwrap();
 
-        let hypothesis = generate_hypothesis(&payload);
+        let hypothesis = NodeType::from(&payload);
 
-        let new_hypothesis = match (current_hypothesis.clone(), hypothesis) {
-            (None, h) => Some(h),
-            (Some(cur), h) => Some(schema_harvester::merge_hypothesis(cur, h)),
-        };
+        let new_hypothesis = current_hypothesis.clone().merge(hypothesis);
 
         // if the merged hypothesis is a different one than the one we used to know, print it
         if new_hypothesis != current_hypothesis {
             current_hypothesis = new_hypothesis;
-            let current_hypothesis = render_schema(current_hypothesis.as_ref().unwrap());
+            let current_hypothesis = render_schema(&current_hypothesis);
             let record = FutureRecord::to(&sink_topic)
                 .key(&source_topic)
                 .payload(&current_hypothesis);

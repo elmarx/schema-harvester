@@ -9,11 +9,22 @@ mod object;
 mod object_property;
 mod string;
 
-#[must_use]
-#[deprecated(since = "0.1.0", note = "Use `merge_node_type` instead")]
-pub fn merge_hypothesis(a: SchemaHypothesis, b: SchemaHypothesis) -> SchemaHypothesis {
-    let root = merge_node_type(a.root, b.root);
-    SchemaHypothesis { root }
+impl SchemaHypothesis {
+    #[must_use]
+    pub fn merge(self, other_root: NodeType) -> SchemaHypothesis {
+        let root = if let Some(root) = self.root {
+            merge_node_type(root, other_root)
+        } else {
+            other_root
+        };
+
+        SchemaHypothesis {
+            id: self.id,
+            title: self.title,
+            description: self.description,
+            root: Some(root),
+        }
+    }
 }
 
 pub fn merge_node_type(a: NodeType, b: NodeType) -> NodeType {
