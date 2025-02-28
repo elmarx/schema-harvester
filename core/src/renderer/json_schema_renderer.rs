@@ -84,36 +84,37 @@ mod test {
     use serde_json::json;
 
     use crate::model::{
-        AnyNode, ArrayNode, IntegerNode, NodeType, ObjectNode, ObjectProperty, SchemaHypothesis,
-        StringFormat, StringNode,
+        AnyNode, ArrayNode, IntegerNode, NodeType, ObjectNode, ObjectProperty, StringFormat,
+        StringNode,
     };
-    use crate::renderer::json_schema_renderer::{render_json_schema, render_node};
+    use crate::renderer::json_schema_renderer::render_node;
 
     #[test]
     fn render_string_without_type() {
-        let hypothesis = SchemaHypothesis::new(StringNode::default());
+        let hypothesis = StringNode::default().into();
 
-        let actual = render_json_schema(&hypothesis);
+        let actual = render_node(&hypothesis);
 
         assert_eq!(actual, json!({ "type": "string" }));
     }
 
     #[test]
     fn render_string_with_type() {
-        let hypothesis = SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)));
+        let hypothesis = StringNode::new(Some(StringFormat::DateTime)).into();
 
-        let actual = render_json_schema(&hypothesis);
+        let actual = render_node(&hypothesis);
 
         assert_eq!(actual, json!({ "type": "string", "format": "date-time" }));
     }
 
     #[test]
     fn test_object() {
-        let hypothesis = SchemaHypothesis::new(ObjectNode::new(btreemap! {
+        let hypothesis = ObjectNode::new(btreemap! {
             "name".to_string() => ObjectProperty::new(StringNode::default()),
-        }));
+        })
+        .into();
 
-        let actual = render_json_schema(&hypothesis);
+        let actual = render_node(&hypothesis);
 
         assert_eq!(
             actual,
@@ -133,12 +134,13 @@ mod test {
 
     #[test]
     fn test_array() {
-        let hypothesis = SchemaHypothesis::new(ArrayNode::new_many(btreeset![
+        let hypothesis = ArrayNode::new_many(btreeset![
             StringNode::default().into(),
             IntegerNode::new().into()
-        ]));
+        ])
+        .into();
 
-        let actual = render_json_schema(&hypothesis);
+        let actual = render_node(&hypothesis);
 
         assert_eq!(
             actual,
@@ -162,10 +164,9 @@ mod test {
 
     #[test]
     fn test_array_single_type() {
-        let hypothesis =
-            SchemaHypothesis::new(ArrayNode::new_many(btreeset!(StringNode::default().into())));
+        let hypothesis = ArrayNode::new_many(btreeset!(StringNode::default().into())).into();
 
-        let actual = render_json_schema(&hypothesis);
+        let actual = render_node(&hypothesis);
 
         assert_eq!(
             actual,
@@ -182,9 +183,9 @@ mod test {
 
     #[test]
     fn test_empty_array() {
-        let hypothesis = SchemaHypothesis::new(ArrayNode::new_untyped());
+        let hypothesis = ArrayNode::new_untyped().into();
 
-        let actual = render_json_schema(&hypothesis);
+        let actual = render_node(&hypothesis);
 
         assert_eq!(actual, json!({ "type": "array" }));
     }

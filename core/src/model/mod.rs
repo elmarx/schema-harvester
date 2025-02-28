@@ -19,9 +19,3 @@ mod string;
 pub struct SchemaHypothesis {
     pub root: NodeType,
 }
-
-impl SchemaHypothesis {
-    pub fn new<N: Into<NodeType>>(root: N) -> Self {
-        SchemaHypothesis { root: root.into() }
-    }
-}
