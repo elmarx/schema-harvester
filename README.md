@@ -27,11 +27,14 @@ Consume from Kafka (using [kcat](https://github.com/edenhill/kcat#readme)):
 $ kcat -b $KAFKA_BROKER_ADDRESS_LIST -t your_topic | schema-harvester
 ```
 
-### Verify schemas
+## Verify schemas
 
-You may use any JSON schema validator to validate the input documents with the derived schema. This
-example uses [yajsv](https://github.com/neilpa/yajsv):
+To verify that the generated schema is a valid JSON schema, we use
+the [jsonschema crate's schema-validation](https://docs.rs/jsonschema/0.29.0/jsonschema/index.html#meta-schema-validation)
+baked into an [executable](./core/examples/validate.rs).
 
 ```shell
-yajsv -s schema.json line_separated.json
+cargo run --example validate schema.json
+# or, eg directly from kafka
+kcat -b localhost:9092 -t schemas -o-1 -C -e | cargo run --example validate
 ```
