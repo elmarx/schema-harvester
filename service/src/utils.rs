@@ -1,22 +1,29 @@
 //! Utilities to use vectors as hashmaps (which should be faster for small vectors)
 
-pub(crate) fn upsert(vec: &mut Vec<(String, String)>, key: &str, value: &str) {
-    if let Some((_, v)) = vec.iter_mut().find(|(k, _)| k == &key) {
-        *v = value.to_string(); // Update existing value
-    } else {
-        vec.push((key.to_string(), value.to_string())); // Insert new entry
-    }
+pub(crate) trait VecExt {
+    fn upsert(&mut self, key: String, value: String);
+    fn insert_if_absent(&mut self, key: String, value: String);
 }
 
-pub(crate) fn insert_if_absent(vec: &mut Vec<(String, String)>, key: &str, value: &str) {
-    if !vec.iter().any(|(k, _)| k == key) {
-        vec.push((key.to_string(), value.to_string()));
+impl VecExt for Vec<(String, String)> {
+    fn upsert(&mut self, key: String, value: String) {
+        if let Some((_, v)) = self.iter_mut().find(|(k, _)| k == &key) {
+            *v = value; // Update existing value
+        } else {
+            self.push((key, value)); // Insert new entry
+        }
+    }
+
+    fn insert_if_absent(&mut self, key: String, value: String) {
+        if !self.iter().any(|(k, _)| *k == key) {
+            self.push((key, value));
+        }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::{insert_if_absent, upsert};
+    use crate::utils::VecExt;
 
     #[test]
     fn test_uspert_with_insert() {
@@ -26,7 +33,7 @@ mod test {
         ];
 
         // element not yet present, should be inserted
-        upsert(&mut sample, "c", "3");
+        sample.upsert("c".to_string(), "3".to_string());
 
         let expected = vec![
             ("a".to_string(), "1".to_string()),
@@ -44,7 +51,7 @@ mod test {
         ];
 
         // element already present, should be updated
-        upsert(&mut sample, "b", "3");
+        sample.upsert("b".to_string(), "3".to_string());
 
         let expected = vec![
             ("a".to_string(), "1".to_string()),
@@ -61,7 +68,7 @@ mod test {
         ];
 
         // element already present, should not be overriden
-        insert_if_absent(&mut sample, "b", "3");
+        sample.insert_if_absent("b".to_string(), "3".to_string());
 
         let expected = vec![
             ("a".to_string(), "1".to_string()),
@@ -78,7 +85,7 @@ mod test {
         ];
 
         // element not yet present, should be inserted
-        insert_if_absent(&mut sample, "c", "3");
+        sample.insert_if_absent("c".to_string(), "3".to_string());
 
         let expected = vec![
             ("a".to_string(), "1".to_string()),
