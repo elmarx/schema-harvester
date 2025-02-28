@@ -1,10 +1,10 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::model::{ArrayNode, NodeType, ObjectNode, ObjectProperty};
 use crate::SchemaHypothesis;
+use crate::model::{ArrayNode, NodeType, ObjectNode, ObjectProperty};
+use serde_json::Map;
 use serde_json::json;
 use serde_json::value::Value;
-use serde_json::Map;
 
 #[must_use]
 #[allow(clippy::missing_panics_doc)]
@@ -221,10 +221,12 @@ mod test {
 
     #[test]
     fn test_any_complex_types() {
-        let node_type = AnyNode::new(btreeset![ObjectNode::new(btreemap! {
-            "id".to_string() => ObjectProperty::new(IntegerNode::new())
-        })
-        .into()])
+        let node_type = AnyNode::new(btreeset![
+            ObjectNode::new(btreemap! {
+                "id".to_string() => ObjectProperty::new(IntegerNode::new())
+            })
+            .into()
+        ])
         .into();
 
         let actual = render_node(&node_type);

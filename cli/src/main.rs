@@ -1,5 +1,5 @@
 use clap::Parser;
-use schema_harvester::{render_schema, SchemaHypothesis};
+use schema_harvester::{SchemaHypothesis, render_schema};
 use std::error::Error;
 use std::fs::File;
 use std::io::{self, Read};
