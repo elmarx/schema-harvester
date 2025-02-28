@@ -13,6 +13,8 @@ management_port = 9000
 # kafka cluster to harvest from
 [kafka_source]
 "group.id" = "schema-harvester"
+"auto.offset.reset" = "earliest"
+
 # all kafka-properties can be overriden here, e.g. to connect to a read-only cluster
 # "sasl.username" = "harvester-read-only"
 

@@ -17,3 +17,7 @@ clippy_nightly:
 
 kafka_fixtures topic file:
     cat {{ file }} | kcat -b localhost:9092 -t {{ topic }} -P
+
+# read the schemas topic. Append `-e` to stop after reading the last message
+kcat_schemas *args:
+    kcat -b localhost:9092 -t schemas -o-1 -C {{ args }}
