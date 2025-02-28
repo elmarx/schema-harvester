@@ -7,6 +7,26 @@ use crate::model::{
 };
 use crate::utils::SetVariances;
 
+impl From<&Value> for NodeType {
+    fn from(dom: &Value) -> Self {
+        match dom {
+            Value::Null => NodeType::Null,
+            Value::Bool(_) => NodeType::Boolean,
+            Value::Number(i) if i.is_f64() => NumberNode::new().into(),
+            Value::Number(_) => IntegerNode::new().into(),
+            Value::String(s) => StringNode::from(s.as_str()).into(),
+            Value::Array(array_values) => {
+                if array_values.is_empty() {
+                    ArrayNode::new_untyped().into()
+                } else {
+                    ArrayNode::new(generate_node_type_for_array_values(array_values)).into()
+                }
+            }
+            Value::Object(props) => ObjectNode::new(generate_properties(props)).into(),
+        }
+    }
+}
+
 fn generate_properties(properties: &Map<String, Value>) -> BTreeMap<String, ObjectProperty> {
     properties
         .iter()
@@ -15,29 +35,11 @@ fn generate_properties(properties: &Map<String, Value>) -> BTreeMap<String, Obje
                 key.clone(),
                 ObjectProperty {
                     required: true,
-                    node_type: generate_node_type(value),
+                    node_type: NodeType::from(value),
                 },
             )
         })
         .collect()
-}
-
-fn generate_node_type(dom: &Value) -> NodeType {
-    match dom {
-        Value::Null => NodeType::Null,
-        Value::Bool(_) => NodeType::Boolean,
-        Value::Number(i) if i.is_f64() => NumberNode::new().into(),
-        Value::Number(_) => IntegerNode::new().into(),
-        Value::String(s) => StringNode::from(s.as_str()).into(),
-        Value::Array(array_values) => {
-            if array_values.is_empty() {
-                ArrayNode::new_untyped().into()
-            } else {
-                ArrayNode::new(generate_node_type_for_array_values(array_values)).into()
-            }
-        }
-        Value::Object(props) => ObjectNode::new(generate_properties(props)).into(),
-    }
 }
 
 fn generate_node_type_for_array_values(array_values: &[Value]) -> NodeType {
@@ -46,7 +48,7 @@ fn generate_node_type_for_array_values(array_values: &[Value]) -> NodeType {
     let mut types = BTreeSet::new();
 
     for value in array_values {
-        let value_type = generate_node_type(value);
+        let value_type = NodeType::from(value);
         match value_type {
             NodeType::Object(ObjectNode { properties: _ }) => {
                 merged_obj_type = match merged_obj_type {
@@ -83,55 +85,53 @@ fn generate_node_type_for_array_values(array_values: &[Value]) -> NodeType {
 #[must_use]
 pub fn generate_hypothesis(dom: &Value) -> SchemaHypothesis {
     SchemaHypothesis {
-        root: generate_node_type(dom),
+        root: NodeType::from(dom),
     }
 }
 
 #[cfg(test)]
 mod test {
-    use maplit::{btreemap, btreeset};
-    use serde_json::json;
-
-    use crate::generate::generate_node_type;
     use crate::model::{
         AnyNode, ArrayNode, IntegerNode, NodeType, NumberNode, ObjectNode, ObjectProperty,
         StringNode,
     };
+    use maplit::{btreemap, btreeset};
+    use serde_json::json;
 
     #[test]
     fn test_null() {
         let dom = json!(null);
-        assert_eq!(generate_node_type(&dom), NodeType::Null);
+        assert_eq!(NodeType::from(&dom), NodeType::Null);
     }
 
     #[test]
     fn test_bool() {
         let dom = json!(true);
-        assert_eq!(generate_node_type(&dom), NodeType::Boolean);
+        assert_eq!(NodeType::from(&dom), NodeType::Boolean);
     }
 
     #[test]
     fn test_integer() {
         let dom = json!(10);
-        assert_eq!(generate_node_type(&dom), IntegerNode::new().into());
+        assert_eq!(NodeType::from(&dom), IntegerNode::new().into());
     }
 
     #[test]
     fn test_number() {
         let dom = json!(10.5);
-        assert_eq!(generate_node_type(&dom), NumberNode::new().into());
+        assert_eq!(NodeType::from(&dom), NumberNode::new().into());
     }
 
     #[test]
     fn test_string() {
         let dom = json!("Schema-harvester");
-        assert_eq!(generate_node_type(&dom), StringNode::default().into());
+        assert_eq!(NodeType::from(&dom), StringNode::default().into());
     }
 
     #[test]
     fn test_array_merge_objects() {
         let dom = json!(["one", 1, {"a": 1}, {"a": "1"}]);
-        let actual = generate_node_type(&dom);
+        let actual = NodeType::from(&dom);
         let expected = ArrayNode::new_many(btreeset! {
             StringNode::default().into(),
             IntegerNode::new().into(),
@@ -150,7 +150,7 @@ mod test {
     fn test_array_all_int() {
         let dom = json!([10, 15, 25]);
         assert_eq!(
-            generate_node_type(&dom),
+            NodeType::from(&dom),
             ArrayNode::new(IntegerNode::new().into()).into()
         );
     }
@@ -158,7 +158,7 @@ mod test {
     #[test]
     fn test_array_empty() {
         let dom = json!([]);
-        assert_eq!(generate_node_type(&dom), ArrayNode::new_untyped().into());
+        assert_eq!(NodeType::from(&dom), ArrayNode::new_untyped().into());
     }
 
     #[test]
@@ -166,7 +166,7 @@ mod test {
         let dom = json!([42, "Hello"]);
 
         assert_eq!(
-            generate_node_type(&dom),
+            NodeType::from(&dom),
             ArrayNode::new_many(btreeset![
                 IntegerNode::new().into(),
                 StringNode::default().into()
@@ -187,6 +187,6 @@ mod test {
         })
         .into();
 
-        assert_eq!(generate_node_type(&dom), expected);
+        assert_eq!(NodeType::from(&dom), expected);
     }
 }
