@@ -1,15 +1,9 @@
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub struct StringNode {}
 
 impl StringNode {
     #[must_use]
     pub fn new() -> Self {
         Self {}
-    }
-}
-
-impl Default for StringNode {
-    fn default() -> Self {
-        StringNode::new()
     }
 }
