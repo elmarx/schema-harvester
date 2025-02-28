@@ -3,6 +3,9 @@
 # port for health-checks etc.
 management_port = 9000
 
+# format logs as json or human-readable
+logging = "human" # or "json"
+
 # defaults for source and sink, may be overridden.
 # leave source and sink empty to use the same kafka-cluster for both.
 [kafka]
