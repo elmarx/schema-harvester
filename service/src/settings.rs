@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::log;
 use crate::utils::VecExt;
 use config::{ConfigError, Environment, File, FileFormat};
 use serde::Deserialize;
@@ -65,6 +66,7 @@ pub struct Config {
     pub kafka_source: KafkaSource,
     pub kafka_sink: KafkaSink,
 
+    pub logging: log::Format,
     pub management_port: u16,
 }
 

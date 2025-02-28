@@ -12,6 +12,7 @@ use std::time::Duration;
 use tikv_jemallocator::Jemalloc;
 
 mod kafka;
+mod log;
 mod management;
 mod settings;
 mod utils;
@@ -23,6 +24,8 @@ static GLOBAL: Jemalloc = Jemalloc;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let settings = Setting::emerge().context("reading config")?;
+
+    log::init(settings.config.logging);
 
     let consumer = init_source(
         &settings.config.kafka,
