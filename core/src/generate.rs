@@ -106,7 +106,7 @@ pub fn generate_hypothesis(dom: &Value) -> SchemaHypothesis {
 #[cfg(test)]
 mod test {
     use maplit::{btreemap, btreeset};
-    use parameterized::{ide, parameterized};
+    use parameterized::parameterized;
     use serde_json::json;
 
     use crate::generate::generate_node_type;
@@ -145,12 +145,7 @@ mod test {
         assert_eq!(generate_node_type(&dom), StringNode::new().into());
     }
 
-    mod parameterized_tests {
-        use super::*;
-
-        ide!();
-
-        #[parameterized(dt = {
+    #[parameterized(dt = {
                                 "2000-01-01T00:00:00.000Z",
                                 "2000-13-01T00:00:00.000Z",
                                 "2000-02-30T00:00:00.000Z",
@@ -170,10 +165,9 @@ mod test {
                                 StringNode::new().into(),
                                 StringNode::new().into(),
                         })]
-        fn test_string_mapping(dt: &str, expected: NodeType) {
-            let dom = json!(dt);
-            assert_eq!(generate_node_type(&dom), expected);
-        }
+    fn test_string_mapping(dt: &str, expected: NodeType) {
+        let dom = json!(dt);
+        assert_eq!(generate_node_type(&dom), expected);
     }
 
     #[test]
