@@ -1,20 +1,9 @@
-Schema 2000
-===========
+Schema-Harvester
+================
 
-[![Rust](https://github.com/rewe-digital/schema2000/actions/workflows/rust.yml/badge.svg)](https://github.com/rewe-digital/schema2000/actions/workflows/rust.yml) [![crates.io schema2000](https://img.shields.io/crates/v/schema2000?label=schema2000)](https://crates.io/crates/schema2000) [![crates.io schema2000-cli](https://img.shields.io/crates/v/schema2000-cli.svg?label=schema2000-cli)](https://crates.io/crates/schema2000-cli) [![docs.rs schema2000](https://docs.rs/schema2000/badge.svg)](https://docs.rs/schema2000)
+[![Rust](https://github.com/elmarx/schema-harvester/actions/workflows/rust.yml)]
 
-Schema2000 is a tool that parses exsiting [JSON](https://www.json.org/json-en.html) documents and tries to derive a [JSON schema](https://json-schema.org/) from these documents.
-
-Currently, Schema2000 is configuration-less command line tool that excepts line-separated JSON documents from `stdin` and emits the derived schema to `stdout` once the input is consumed.
-
-How to install
---------------
-
-Download the [latest binaries for your operating system](https://github.com/rewe-digital/schema2000/releases), and add them to your `$PATH` and make them executable.
-
-### macOS specific installation
-
-macOS will not open the app as the developer can not be verified. As a work-around, open the folder containing `schema2000_macOS` in Finder, "ctrl-click" on `schema2000_macOS` and click on the menu item "open".  You can then confirm to open the app.  This will open a terminal app session, which you can simply close.
+Schema-Harvester is a tool that parses exsiting [JSON](https://www.json.org/json-en.html) documents and tries to derive a [JSON schema](https://json-schema.org/) from these documents.
 
 Usage
 -----
@@ -22,19 +11,19 @@ Usage
 Consume a file with line separated JSON documents:
 
 ```shell
-$ cat line_separated.json | schema2000
+$ cat line_separated.json | schema-harvester
 ```
 
 Consume via MQTT (using [Eclipse Mosquitto](https://mosquitto.org/)):
 
 ```shell
-$ mosquitto_sub -t homeassistant/event | schema2000
+$ mosquitto_sub -t homeassistant/event | schema-harvester
 ```
 
 Consume from Kafka (using [kcat](https://github.com/edenhill/kcat#readme)):
 
 ```shell
-$ kcat -b $KAFKA_BROKER_ADDRESS_LIST -t your_topic | schema2000
+$ kcat -b $KAFKA_BROKER_ADDRESS_LIST -t your_topic | schema-harvester
 ```
 
 ### Verify schemas

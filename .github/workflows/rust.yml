@@ -73,10 +73,10 @@ jobs:
 
       - run: cargo build --release
 
-      - run: mv target/release/schema2000{,_${{ runner.os }}}
+      - run: mv target/release/schema-harvester{,_${{ runner.os }}}
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2
         with:
-          name: schema2000
-          path: target/release/schema2000_${{ runner.os }}
+          name: schema-harvester
+          path: target/release/schema-harvester_${{ runner.os }}

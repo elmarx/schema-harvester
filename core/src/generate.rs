@@ -141,7 +141,7 @@ mod test {
 
     #[test]
     fn test_string() {
-        let dom = json!("Schema 2000");
+        let dom = json!("Schema -harvester");
         assert_eq!(generate_node_type(&dom), StringNode::new().into());
     }
 

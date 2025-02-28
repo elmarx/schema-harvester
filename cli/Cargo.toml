@@ -1,20 +1,21 @@
 [package]
-name = "schema2000-cli"
+name = "schema-harvester-cli"
 version = "0.1.0"
 edition = "2018"
 license = "MIT OR Apache-2.0"
-description = "Schema2000 is a tool that parses exsiting JSON documents and tries to derive a JSON schema from these documents."
-repository = "https://github.com/rewe-digital/schema2000"
-homepage = "https://github.com/rewe-digital/schema2000"
+description = "Schema-Harvester is a tool that parses exsiting JSON documents and tries to derive a JSON schema from these documents."
+repository = "https://github.com/elmarx/schema-harvester"
+homepage = "https://github.com/elmarx/schema-harvester"
 categories = ["command-line-utilities"]
+authors = ["Elmar Athmer <elmar@athmer.org>"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 serde_json = "1.0.116"
 clap = { version = "4.5.4", features = ["derive"] }
-schema2000 = { version = "0.1.0",  path = "../core" }
+schema-harvester = { version = "0.1.0", path = "../core" }
 
 [[bin]]
-name = "schema2000"
+name = "schema-harvester"
 path = "src/main.rs"
