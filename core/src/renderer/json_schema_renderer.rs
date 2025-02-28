@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::SchemaHypothesis;
 use crate::model::{ArrayNode, NodeType, ObjectNode, ObjectProperty};
+use crate::renderer::Render;
 use serde_json::Map;
 use serde_json::json;
 use serde_json::value::Value;
@@ -18,7 +19,7 @@ fn render_json_schema(schema: &SchemaHypothesis) -> Value {
 
 fn render_node(node_type: &NodeType) -> Value {
     match node_type {
-        NodeType::String(_) => json!({"type": "string"}),
+        NodeType::String(s) => s.render(),
         NodeType::Integer(_) => json!({"type": "integer"}),
         NodeType::Number(_) => json!({"type": "number"}),
         NodeType::Boolean => json!({"type": "boolean"}),
@@ -84,9 +85,27 @@ mod test {
 
     use crate::model::{
         AnyNode, ArrayNode, IntegerNode, NodeType, ObjectNode, ObjectProperty, SchemaHypothesis,
-        StringNode,
+        StringFormat, StringNode,
     };
     use crate::renderer::json_schema_renderer::{render_json_schema, render_node};
+
+    #[test]
+    fn render_string_without_type() {
+        let hypothesis = SchemaHypothesis::new(StringNode::default());
+
+        let actual = render_json_schema(&hypothesis);
+
+        assert_eq!(actual, json!({ "type": "string" }));
+    }
+
+    #[test]
+    fn render_string_with_type() {
+        let hypothesis = SchemaHypothesis::new(StringNode::new(Some(StringFormat::DateTime)));
+
+        let actual = render_json_schema(&hypothesis);
+
+        assert_eq!(actual, json!({ "type": "string", "format": "date-time" }));
+    }
 
     #[test]
     fn test_object() {

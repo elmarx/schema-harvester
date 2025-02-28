@@ -4,6 +4,7 @@ pub use integer::IntegerNode;
 pub use node_type::NodeType;
 pub use number::NumberNode;
 pub use object::{ObjectNode, ObjectProperty};
+pub use string::Format as StringFormat;
 pub use string::StringNode;
 
 mod any;
