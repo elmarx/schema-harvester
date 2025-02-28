@@ -18,7 +18,7 @@ mod number;
 mod object;
 mod string;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct SchemaHypothesis {
     pub root: NodeType,
 }
