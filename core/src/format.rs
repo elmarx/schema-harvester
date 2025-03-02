@@ -1,5 +1,12 @@
 //! "stolen" from https://github.com/Stranger6667/jsonschema/blob/f94b36d4f55ec12a0d77c2797626a8539e4197ed/crates/jsonschema/src/keywords/format.rs
 
+use uuid_simd::{Out, parse_hyphenated};
+
+pub fn is_valid_uuid(uuid: &str) -> bool {
+    let mut out = [0; 16];
+    parse_hyphenated(uuid.as_bytes(), Out::from_mut(&mut out)).is_ok()
+}
+
 #[inline]
 fn parse_two_digits(bytes: &[u8]) -> Option<u8> {
     let value = u16::from_ne_bytes([bytes[0], bytes[1]]);

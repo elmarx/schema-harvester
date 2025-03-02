@@ -1,4 +1,4 @@
-use crate::format::{is_valid_date, is_valid_datetime, is_valid_time};
+use crate::format::{is_valid_date, is_valid_datetime, is_valid_time, is_valid_uuid};
 use strum_macros;
 use strum_macros::IntoStaticStr;
 
@@ -25,7 +25,7 @@ pub enum Format {
     // UriReference,
     // Iri,
     // IriReference,
-    // Uuid,
+    Uuid,
     // UriTemplate,
     // JsonPointer,
     // RelativeJsonPointer,
@@ -37,20 +37,31 @@ impl StringNode {
     pub fn new(format: Option<Format>) -> Self {
         Self { format }
     }
+
+    #[must_use]
+    pub fn formatted(format: Format) -> Self {
+        Self {
+            format: Some(format),
+        }
+    }
 }
 
 impl From<&str> for StringNode {
     fn from(value: &str) -> Self {
         if is_valid_datetime(value) {
-            return StringNode::new(Some(Format::DateTime));
+            return StringNode::formatted(Format::DateTime);
         }
 
         if is_valid_date(value) {
-            return StringNode::new(Some(Format::Date));
+            return StringNode::formatted(Format::Date);
         }
 
         if is_valid_time(value) {
-            return StringNode::new(Some(Format::Time));
+            return StringNode::formatted(Format::Time);
+        }
+
+        if is_valid_uuid(value) {
+            return StringNode::formatted(Format::Uuid);
         }
 
         StringNode::default()
@@ -82,5 +93,12 @@ mod test {
     fn test_temporal_formats(input: &str, expected: Option<Format>) {
         let sample: StringNode = input.into();
         assert_eq!(sample.format, expected);
+    }
+
+    #[test]
+    fn test_uuid() {
+        let actual: StringNode = "f3fa7e18-549f-4ee1-8aeb-1bb8cbf7e956".into();
+        let expected = StringNode::formatted(Format::Uuid);
+        assert_eq!(actual, expected)
     }
 }

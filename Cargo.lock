@@ -1282,6 +1282,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "test-case",
+ "uuid-simd",
 ]
 
 [[package]]
