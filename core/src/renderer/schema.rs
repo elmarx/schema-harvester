@@ -36,3 +36,18 @@ impl Render for SchemaHypothesis {
         serde_json::to_value(schema).unwrap()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::{SchemaHypothesis, renderer::Render};
+
+    #[test]
+    fn test_render_schema() {
+        let sample = SchemaHypothesis::new(
+            "id".to_owned(),
+            "title".to_owned(),
+            "description".to_owned(),
+        );
+        let actual = sample.render();
+    }
+}
