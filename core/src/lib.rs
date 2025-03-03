@@ -8,4 +8,3 @@ mod generate;
 mod merge;
 pub mod model;
 mod renderer;
-mod utils;
