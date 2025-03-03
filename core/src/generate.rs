@@ -16,7 +16,7 @@ impl From<&Value> for NodeType {
             Value::String(s) => StringNode::from(s.as_str()).into(),
             Value::Array(array_values) => {
                 if array_values.is_empty() {
-                    ArrayNode::new_untyped().into()
+                    ArrayNode::default().into()
                 } else {
                     ArrayNode::new(generate_node_type_for_array_values(array_values)).into()
                 }
@@ -150,7 +150,7 @@ mod test {
     #[test]
     fn test_array_empty() {
         let dom = json!([]);
-        assert_eq!(NodeType::from(&dom), ArrayNode::new_untyped().into());
+        assert_eq!(NodeType::from(&dom), ArrayNode::default().into());
     }
 
     #[test]
