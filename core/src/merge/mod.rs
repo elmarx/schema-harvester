@@ -114,38 +114,38 @@ mod test {
 
     #[test]
     fn test_merge_array_with_same_types() {
-        let a = ArrayNode::new_many(btreeset!(IntegerNode::new().into()));
-        let b = ArrayNode::new_many(btreeset!(IntegerNode::new().into()));
+        let a = ArrayNode::from(btreeset!(IntegerNode::new().into()));
+        let b = ArrayNode::from(btreeset!(IntegerNode::new().into()));
 
         assert_eq!(
             merge_node_type(a.into(), b.into()),
-            ArrayNode::new_many(btreeset!(IntegerNode::new().into())).into()
+            ArrayNode::from(btreeset!(IntegerNode::new().into())).into()
         );
     }
 
     #[test]
     fn test_merge_array_with_one_empty_one_given() {
         let a = ArrayNode::default();
-        let b = ArrayNode::new_many(btreeset!(IntegerNode::new().into()));
+        let b = ArrayNode::from(btreeset!(IntegerNode::new().into()));
 
         assert_eq!(
             merge_node_type(a.into(), b.into()),
-            ArrayNode::new_many(btreeset!(IntegerNode::new().into())).into()
+            ArrayNode::from(btreeset!(IntegerNode::new().into())).into()
         );
     }
 
     #[test]
     fn test_merge_array_with_different_types() {
-        let a = ArrayNode::new_many(btreeset![
+        let a = ArrayNode::from(btreeset![
             IntegerNode::new().into(),
             StringNode::default().into()
         ])
         .into();
-        let b = ArrayNode::new_many(btreeset![IntegerNode::new().into(), NodeType::Boolean]).into();
+        let b = ArrayNode::from(btreeset![IntegerNode::new().into(), NodeType::Boolean]).into();
 
         assert_eq!(
             merge_node_type(a, b),
-            ArrayNode::new_many(btreeset![
+            ArrayNode::from(btreeset![
                 IntegerNode::new().into(),
                 StringNode::default().into(),
                 NodeType::Boolean
@@ -156,7 +156,7 @@ mod test {
 
     #[test]
     fn test_merge_array_with_objects() {
-        let a = ArrayNode::new_many(btreeset![
+        let a = ArrayNode::from(btreeset![
             ObjectNode::new(btreemap! {
                 "id".to_string() => ObjectProperty {
                     node_type: IntegerNode::new().into(),
@@ -165,7 +165,7 @@ mod test {
             })
             .into()
         ]);
-        let b = ArrayNode::new_many(btreeset![
+        let b = ArrayNode::from(btreeset![
             ObjectNode::new(btreemap! {
                 "name".to_string() => ObjectProperty {
                     node_type: StringNode::default().into(),
@@ -177,7 +177,7 @@ mod test {
 
         assert_eq!(
             merge_node_type(a.into(), b.into()),
-            ArrayNode::new_many(btreeset![
+            ArrayNode::from(btreeset![
                 ObjectNode::new(btreemap! {
                     "id".to_string() => ObjectProperty {
                         node_type: IntegerNode::new().into(),
