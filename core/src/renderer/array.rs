@@ -78,7 +78,7 @@ mod test {
 
     #[test]
     fn test_empty_array() {
-        let hypothesis: NodeType = ArrayNode::new_untyped().into();
+        let hypothesis: NodeType = ArrayNode::default().into();
 
         let actual = hypothesis.render();
 

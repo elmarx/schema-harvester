@@ -103,12 +103,12 @@ mod test {
 
     #[test]
     fn test_merge_array_without_types() {
-        let a = ArrayNode::new_untyped();
-        let b = ArrayNode::new_untyped();
+        let a = ArrayNode::default();
+        let b = ArrayNode::default();
 
         assert_eq!(
             merge_node_type(a.into(), b.into()),
-            ArrayNode::new_untyped().into()
+            ArrayNode::default().into()
         );
     }
 
@@ -125,7 +125,7 @@ mod test {
 
     #[test]
     fn test_merge_array_with_one_empty_one_given() {
-        let a = ArrayNode::new_untyped();
+        let a = ArrayNode::default();
         let b = ArrayNode::new_many(btreeset!(IntegerNode::new().into()));
 
         assert_eq!(
