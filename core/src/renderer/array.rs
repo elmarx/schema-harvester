@@ -59,7 +59,7 @@ mod test {
     #[test]
     fn test_array_single_type() {
         let hypothesis: NodeType =
-            ArrayNode::from(btreeset!(StringNode::default().into())).into();
+            ArrayNode::new(StringNode::default().into()).into();
 
         let actual = hypothesis.render();
 

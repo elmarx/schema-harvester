@@ -114,23 +114,23 @@ mod test {
 
     #[test]
     fn test_merge_array_with_same_types() {
-        let a = ArrayNode::from(btreeset!(IntegerNode::new().into()));
-        let b = ArrayNode::from(btreeset!(IntegerNode::new().into()));
+        let a = ArrayNode::new(IntegerNode::new().into());
+        let b = ArrayNode::new(IntegerNode::new().into());
 
         assert_eq!(
             merge_node_type(a.into(), b.into()),
-            ArrayNode::from(btreeset!(IntegerNode::new().into())).into()
+            ArrayNode::new(IntegerNode::new().into()).into()
         );
     }
 
     #[test]
     fn test_merge_array_with_one_empty_one_given() {
         let a = ArrayNode::default();
-        let b = ArrayNode::from(btreeset!(IntegerNode::new().into()));
+        let b = ArrayNode::new(IntegerNode::new().into());
 
         assert_eq!(
             merge_node_type(a.into(), b.into()),
-            ArrayNode::from(btreeset!(IntegerNode::new().into())).into()
+            ArrayNode::new(IntegerNode::new().into()).into()
         );
     }
 
@@ -156,7 +156,7 @@ mod test {
 
     #[test]
     fn test_merge_array_with_objects() {
-        let a = ArrayNode::from(btreeset![
+        let a = ArrayNode::new(
             ObjectNode::new(btreemap! {
                 "id".to_string() => ObjectProperty {
                     node_type: IntegerNode::new().into(),
@@ -164,8 +164,8 @@ mod test {
                 }
             })
             .into()
-        ]);
-        let b = ArrayNode::from(btreeset![
+        );
+        let b = ArrayNode::new(
             ObjectNode::new(btreemap! {
                 "name".to_string() => ObjectProperty {
                     node_type: StringNode::default().into(),
@@ -173,11 +173,11 @@ mod test {
                 }
             })
             .into()
-        ]);
+        );
 
         assert_eq!(
             merge_node_type(a.into(), b.into()),
-            ArrayNode::from(btreeset![
+            ArrayNode::new(
                 ObjectNode::new(btreemap! {
                     "id".to_string() => ObjectProperty {
                         node_type: IntegerNode::new().into(),
@@ -189,7 +189,7 @@ mod test {
                     }
                 })
                 .into()
-            ])
+            )
             .into()
         );
     }
