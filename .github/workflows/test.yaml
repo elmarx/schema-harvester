@@ -22,4 +22,4 @@ jobs:
 
       - uses: crusty-pie/clippy@v1
         with:
-          args: --all-features --all-targets
+          args: --all-features --all-targets -- -D warnings
