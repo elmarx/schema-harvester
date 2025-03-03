@@ -7,4 +7,5 @@ mod format;
 mod generate;
 mod merge;
 pub mod model;
+pub mod hints;
 mod renderer;
