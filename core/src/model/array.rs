@@ -14,14 +14,14 @@ impl ArrayNode {
             items: Some(Box::new(node_type)),
         }
     }
+}
 
-    #[must_use]
-    #[allow(clippy::missing_panics_doc)]
-    pub fn new_many(node_types: BTreeSet<NodeType>) -> Self {
+impl From<BTreeSet<NodeType>> for ArrayNode {
+    fn from(mut node_types: BTreeSet<NodeType>) -> Self {
         match node_types.len() {
             0 => Self::default(),
             1 => Self {
-                items: Some(Box::new(node_types.into_iter().next().unwrap())),
+                items: node_types.pop_first().map(Box::new),
             },
             _ => Self {
                 items: Some(Box::new(NodeType::Any(AnyNode::new(node_types)))),
