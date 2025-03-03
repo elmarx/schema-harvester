@@ -124,7 +124,7 @@ mod test {
     fn test_array_merge_objects() {
         let dom = json!(["one", 1, {"a": 1}, {"a": "1"}]);
         let actual = NodeType::from(&dom);
-        let expected = ArrayNode::new_many(btreeset! {
+        let expected = ArrayNode::from(btreeset! {
             StringNode::default().into(),
             IntegerNode::new().into(),
             ObjectNode::new(btreemap! {
@@ -159,7 +159,7 @@ mod test {
 
         assert_eq!(
             NodeType::from(&dom),
-            ArrayNode::new_many(btreeset![
+            ArrayNode::from(btreeset![
                 IntegerNode::new().into(),
                 StringNode::default().into()
             ])

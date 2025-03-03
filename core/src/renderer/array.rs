@@ -28,7 +28,7 @@ mod test {
 
     #[test]
     fn test_array() {
-        let hypothesis: NodeType = ArrayNode::new_many(btreeset![
+        let hypothesis: NodeType = ArrayNode::from(btreeset![
             StringNode::default().into(),
             IntegerNode::new().into()
         ])
@@ -59,7 +59,7 @@ mod test {
     #[test]
     fn test_array_single_type() {
         let hypothesis: NodeType =
-            ArrayNode::new_many(btreeset!(StringNode::default().into())).into();
+            ArrayNode::from(btreeset!(StringNode::default().into())).into();
 
         let actual = hypothesis.render();
 
