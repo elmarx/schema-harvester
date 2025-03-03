@@ -2,9 +2,8 @@ use serde_json::{Map, Value};
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::model::{
-    AnyNode, ArrayNode, IntegerNode, NodeType, NumberNode, ObjectNode, ObjectProperty, StringNode,
+    ArrayNode, IntegerNode, NodeType, NumberNode, ObjectNode, ObjectProperty, StringNode,
 };
-use crate::utils::SetVariances;
 
 impl From<&Value> for NodeType {
     fn from(dom: &Value) -> Self {
@@ -15,11 +14,7 @@ impl From<&Value> for NodeType {
             Value::Number(_) => IntegerNode::new().into(),
             Value::String(s) => StringNode::from(s.as_str()).into(),
             Value::Array(array_values) => {
-                if array_values.is_empty() {
-                    ArrayNode::default().into()
-                } else {
-                    ArrayNode::new(generate_node_type_for_array_values(array_values)).into()
-                }
+                ArrayNode::from(collect_types_of_items(array_values)).into()
             }
             Value::Object(props) => ObjectNode::new(generate_properties(props)).into(),
         }
@@ -41,11 +36,13 @@ fn generate_properties(properties: &Map<String, Value>) -> BTreeMap<String, Obje
         .collect()
 }
 
-fn generate_node_type_for_array_values(array_values: &[Value]) -> NodeType {
+/// given an array of Values, gather the different NodeTypes
+fn collect_types_of_items(array_values: &[Value]) -> BTreeSet<NodeType> {
     let mut merged_obj_type: Option<NodeType> = None;
     let mut merged_array_type: Option<NodeType> = None;
     let mut types = BTreeSet::new();
 
+    // first, iterate over all values and collect the different types
     for value in array_values {
         let value_type = NodeType::from(value);
         match value_type {
@@ -74,11 +71,7 @@ fn generate_node_type_for_array_values(array_values: &[Value]) -> NodeType {
         types.insert(node_type);
     }
 
-    match SetVariances::new(&types) {
-        SetVariances::Empty => unreachable!(),
-        SetVariances::OneElement(node_type) => node_type.clone(),
-        SetVariances::Multiple(_) => AnyNode::new(types).into(),
-    }
+    types
 }
 
 #[cfg(test)]
