@@ -5,8 +5,12 @@ use crate::model::number::NumberNode;
 use crate::model::object::ObjectNode;
 use crate::model::string::StringNode;
 
+/// each "node" in a JSON-document we detect is either a
+/// JSON schema [basic type](https://json-schema.org/understanding-json-schema/reference/type)
+/// or a [composition](https://json-schema.org/understanding-json-schema/reference/combining)
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum NodeType {
+    /// "OR" composition: Must be valid against any of the subschemas
     Any(AnyNode),
     Array(ArrayNode),
     Boolean,
