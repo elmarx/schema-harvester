@@ -6,5 +6,5 @@ edition = "2024"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-serde_json = "1.0.139"
+serde_json = "1.0.140"
 schema-harvester = { path = "../core" }
