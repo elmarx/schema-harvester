@@ -1,20 +1,11 @@
+use crate::args::into_reader;
 use eros::AnyError;
 use schema_harvester::model::NodeType;
 use schema_harvester::{SchemaHypothesis, render_schema};
-use std::fs::File;
-use std::io;
-use std::io::{BufRead, BufReader};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 pub fn run(file: Option<PathBuf>) -> eros::Result<(), AnyError> {
-    let file = file.unwrap_or_else(|| PathBuf::from("-"));
-
-    let reader: Box<dyn BufRead> = if file == Path::new("-") {
-        Box::new(io::stdin().lock())
-    } else {
-        let file = File::open(file)?;
-        Box::new(BufReader::new(file))
-    };
+    let reader = into_reader(file)?;
 
     let deserializer = serde_json::Deserializer::from_reader(reader);
     let iterator = deserializer.into_iter::<serde_json::Value>();
