@@ -5,19 +5,17 @@ WORKDIR /usr/src
 RUN apt-get update && apt-get install -y libssl-dev libsasl2-dev
 
 COPY Cargo.toml Cargo.lock ./
-COPY cli/Cargo.toml cli/Cargo.toml
 COPY core/Cargo.toml core/Cargo.toml
 COPY service/Cargo.toml service/Cargo.toml
 
 # compile all dependencies with a dummy for improved caching
-RUN mkdir -p cli/src core/src service/src/bin && \
+RUN mkdir -p core/src service/src/bin && \
   echo "fn main() { println!(\"Dummy\"); }" > service/src/bin/dummy.rs && \
   touch core/src/lib.rs && \
   cargo build --release --bin dummy && \
-  rm -rf cli service
+  rm -rf service
 
 # now compile the real code
-COPY cli cli
 COPY core core
 COPY service service
 

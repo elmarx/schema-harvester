@@ -1,8 +1,7 @@
 [package]
-name = "schema-harvester-cli"
+name = "harvester"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85.0"
 license = "MIT OR Apache-2.0"
 description = "Schema-Harvester is a tool that parses exsiting JSON documents and tries to derive a JSON schema from these documents."
 repository = "https://github.com/elmarx/schema-harvester"
@@ -10,13 +9,8 @@ homepage = "https://github.com/elmarx/schema-harvester"
 categories = ["command-line-utilities"]
 authors = ["Elmar Athmer <elmar@athmer.org>"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-serde_json = "1.0.154"
-clap = { version = "4.6.7", features = ["derive"] }
+clap = { version = "4.6.7", features = ["derive", "env"] }
+eros = { version = "0.8.1", features = ["better_backtrace", "user_context"] }
 schema-harvester = { version = "0.1.0", path = "../core" }
-
-[[bin]]
-name = "schema-harvester"
-path = "src/main.rs"
+serde_json = "1.0.154"

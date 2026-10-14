@@ -31,19 +31,19 @@ By default, it consumes all topics it has access to.
 Consume a file with line separated JSON documents:
 
 ```shell
-$ cat line_separated.json | schema-harvester
+$ cat line_separated.json | harvester analyze
 ```
 
 Consume via MQTT (using [Eclipse Mosquitto](https://mosquitto.org/)):
 
 ```shell
-$ mosquitto_sub -t homeassistant/event | schema-harvester
+$ mosquitto_sub -t homeassistant/event | harvester analyze
 ```
 
 Consume from Kafka (using [kcat](https://github.com/edenhill/kcat#readme)):
 
 ```shell
-$ kcat -b $KAFKA_BROKER_ADDRESS_LIST -t your_topic | schema-harvester
+$ kcat -b $KAFKA_BROKER_ADDRESS_LIST -t your_topic | harvester analyze
 ```
 
 ## Verify schemas
