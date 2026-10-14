@@ -10,8 +10,7 @@ COPY core/Cargo.toml core/Cargo.toml
 COPY service/Cargo.toml service/Cargo.toml
 
 # compile all dependencies with a dummy for improved caching
-RUN sed -i s/\"test-suite\",// Cargo.toml  && \
-  mkdir -p cli/src core/src service/src/bin && \
+RUN mkdir -p cli/src core/src service/src/bin && \
   echo "fn main() { println!(\"Dummy\"); }" > service/src/bin/dummy.rs && \
   touch core/src/lib.rs && \
   cargo build --release --bin dummy && \

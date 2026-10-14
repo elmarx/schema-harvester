@@ -4,6 +4,5 @@ resolver = "3"
 members = [
     "core",
     "cli",
-    "test-suite",
     "service"
 ]

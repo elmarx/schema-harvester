@@ -1571,14 +1571,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "schema-harvester-test-suite"
-version = "0.0.0"
-dependencies = [
- "schema-harvester",
- "serde_json",
-]
-
-[[package]]
 name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
