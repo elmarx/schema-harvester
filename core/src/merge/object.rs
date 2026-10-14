@@ -12,7 +12,7 @@ pub fn merge_object(a: ObjectNode, b: ObjectNode) -> ObjectNode {
         .union(&keys_b)
         .map(|key| {
             (
-                (*key).to_string(),
+                (*key).clone(),
                 object_property::merge_object_property(
                     properties_a.get(*key),
                     properties_b.get(*key),

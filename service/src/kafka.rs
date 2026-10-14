@@ -52,11 +52,11 @@ pub fn init_sink(
 }
 
 pub trait ConsumerExt {
-    async fn list_topics(&self) -> KafkaResult<Vec<String>>;
+    fn list_topics(&self) -> KafkaResult<Vec<String>>;
 }
 
 impl ConsumerExt for StreamConsumer {
-    async fn list_topics(&self) -> KafkaResult<Vec<String>> {
+    fn list_topics(&self) -> KafkaResult<Vec<String>> {
         let metadata = self.fetch_metadata(None, Duration::from_secs(60))?;
 
         let topics = metadata
@@ -64,7 +64,7 @@ impl ConsumerExt for StreamConsumer {
             .iter()
             .filter_map(|t| {
                 let name = t.name();
-                if name.starts_with("_") {
+                if name.starts_with('_') {
                     None
                 } else {
                     Some(name.to_string())

@@ -9,7 +9,7 @@ pub struct StringNode {
     pub format: Option<Format>,
 }
 
-/// string format, see https://www.learnjsonschema.com/2020-12/format-annotation/format/
+/// string format, see <https://www.learnjsonschema.com/2020-12/format-annotation/format>/
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, IntoStaticStr)]
 #[strum(serialize_all = "kebab-case")]
 pub enum Format {
@@ -71,6 +71,7 @@ impl From<&str> for StringNode {
 }
 
 #[cfg(test)]
+#[expect(clippy::needless_pass_by_value, reason = "for usage with test_case")]
 mod test {
     use super::Format;
     use super::StringNode;
@@ -101,6 +102,6 @@ mod test {
     fn test_uuid() {
         let actual: StringNode = "f3fa7e18-549f-4ee1-8aeb-1bb8cbf7e956".into();
         let expected = StringNode::formatted(Format::Uuid);
-        assert_eq!(actual, expected)
+        assert_eq!(actual, expected);
     }
 }

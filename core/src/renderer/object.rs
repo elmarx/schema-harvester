@@ -8,7 +8,7 @@ fn render_object_map(properties: &BTreeMap<String, ObjectProperty>) -> Map<Strin
         .iter()
         .filter_map(|(key, value)| {
             if value.required {
-                Some(Value::String(key.to_string()))
+                Some(Value::String(key.clone()))
             } else {
                 None
             }
@@ -19,7 +19,7 @@ fn render_object_map(properties: &BTreeMap<String, ObjectProperty>) -> Map<Strin
         .iter()
         .map(|(key, value)| {
             let node_type = &value.node_type;
-            (key.to_string(), node_type.render())
+            (key.clone(), node_type.render())
         })
         .collect();
 

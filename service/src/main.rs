@@ -44,8 +44,7 @@ async fn main() -> anyhow::Result<()> {
         .contains(&"*".to_string())
     {
         consumer
-            .list_topics()
-            .await?
+            .list_topics()?
             .into_iter()
             .filter(|t| *t != sink_topic)
             .collect()

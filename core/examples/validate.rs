@@ -5,7 +5,7 @@ use std::process::ExitCode;
 
 /// meta-validation of a JSON-schema
 ///
-/// Basically https://docs.rs/jsonschema/0.29.0/jsonschema/index.html#meta-schema-validation in executable
+/// Basically <https://docs.rs/jsonschema/0.29.0/jsonschema/index.html#meta-schema-validation> in executable
 fn main() -> ExitCode {
     let file_path = std::env::args().nth(1).unwrap_or("-".to_string());
 
@@ -19,7 +19,7 @@ fn main() -> ExitCode {
     let validation = jsonschema::meta::validate(&schema);
 
     if let Err(validation_error) = validation {
-        println!("{:#?}", validation_error);
+        println!("{validation_error:#?}");
         ExitCode::FAILURE
     } else {
         ExitCode::SUCCESS

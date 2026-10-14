@@ -33,7 +33,7 @@ pub async fn task(
     let mut current_hypothesis = SchemaHypothesis::new(
         "https:://github.com/elmarx/schema-harvester".to_string(),
         source_topic.clone(),
-        format!("Auto-generated schema for {}", source_topic),
+        format!("Auto-generated schema for {source_topic}"),
     );
 
     while let Some(message) = rx.recv().await {

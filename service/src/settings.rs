@@ -129,7 +129,7 @@ fn kafka_sink_source_from_env(
             (_, _, Some(default_prop)) => {
                 let prop = rdkafka_prop(default_prop);
                 kafka_sink_properties.upsert(prop.clone(), value.clone());
-                kafka_source_properties.upsert(prop, value.clone())
+                kafka_source_properties.upsert(prop, value.clone());
             }
             _ => {}
         }

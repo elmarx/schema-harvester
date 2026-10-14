@@ -9,6 +9,7 @@ pub struct SchemaHypothesis {
 }
 
 impl SchemaHypothesis {
+    #[must_use]
     pub fn new(id: String, title: String, description: String) -> Self {
         SchemaHypothesis {
             id,

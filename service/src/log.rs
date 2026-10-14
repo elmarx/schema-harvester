@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum Format {
     /// log in JSON Format

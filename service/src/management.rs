@@ -21,16 +21,14 @@ pub async fn run(management_port: u16) -> tokio::io::Result<()> {
         let io = TokioIo::new(stream);
 
         let svc = ServiceBuilder::new().service_fn(move |request: Request<Incoming>| async move {
-            let response = match (request.method(), request.uri().path()) {
-                (&Method::GET, "/healthz") => {
+            let response =
+                if let (&Method::GET, "/healthz") = (request.method(), request.uri().path()) {
                     Response::new(Full::new(Bytes::from(r#"{"status": "healthy"}"#)))
-                }
-                _ => {
+                } else {
                     let mut not_found = Response::new(Full::new(Bytes::new()));
                     *not_found.status_mut() = StatusCode::NOT_FOUND;
                     not_found
-                }
-            };
+                };
 
             Result::<_, Infallible>::Ok(response)
         });

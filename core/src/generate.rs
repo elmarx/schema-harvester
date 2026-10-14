@@ -36,7 +36,7 @@ fn generate_properties(properties: &Map<String, Value>) -> BTreeMap<String, Obje
         .collect()
 }
 
-/// given an array of Values, gather the different NodeTypes
+/// given an array of Values, gather the different `NodeTypes`
 fn collect_types_of_items(array_values: &[Value]) -> BTreeSet<NodeType> {
     let mut merged_obj_type: Option<NodeType> = None;
     let mut merged_array_type: Option<NodeType> = None;
@@ -61,7 +61,7 @@ fn collect_types_of_items(array_values: &[Value]) -> BTreeSet<NodeType> {
             _ => {
                 types.insert(value_type);
             }
-        };
+        }
     }
     if let Some(node_type) = merged_obj_type {
         types.insert(node_type);

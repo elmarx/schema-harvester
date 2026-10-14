@@ -17,7 +17,7 @@ struct SerSchema {
 
 impl From<&SchemaHypothesis> for SerSchema {
     fn from(schema: &SchemaHypothesis) -> Self {
-        let root = schema.root.as_ref().map(|root| root.render());
+        let root = schema.root.as_ref().map(super::Render::render);
 
         SerSchema {
             schema: "http://json-schema.org/draft-07/schema#",
