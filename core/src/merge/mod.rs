@@ -48,6 +48,7 @@ pub fn merge_node_type(a: NodeType, b: NodeType) -> NodeType {
 #[cfg(test)]
 mod test {
     use std::collections::{BTreeMap, BTreeSet};
+    use serde_json::json;
 
     use crate::merge::merge_node_type;
     use crate::model::{
@@ -346,5 +347,40 @@ mod test {
             ]))
             .into()
         );
+    }
+
+    /// merging the same documents must yield the same result, regardless of their order
+    #[test]
+    fn test_merge_is_order_independent() {
+        let date = NodeType::from(&json!("2020-01-01"));
+        let integer = NodeType::from(&json!(5));
+        let string = NodeType::from(&json!("x"));
+
+        let fold = |sample: [&NodeType; 3]| {
+            sample
+                .into_iter()
+                .cloned()
+                .reduce(merge_node_type)
+                .unwrap()
+        };
+
+        // a formatted string and a plain string collapse into a plain string
+        let expected = AnyNode::new(BTreeSet::from([
+            IntegerNode::new().into(),
+            StringNode::default().into()
+        ]))
+        .into();
+
+        for sample in [
+            [&date, &integer, &string],
+            [&date, &string, &integer],
+            [&integer, &date, &string],
+            [&integer, &string, &date],
+            [&string, &date, &integer],
+            [&string, &integer, &date],
+        ] {
+            let actual = fold(sample);
+            assert_eq!(actual, expected, "order: {sample:?}");
+        }
     }
 }
