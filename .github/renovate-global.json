@@ -1,8 +1,0 @@
-{
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "gitAuthor": "Renovate Bot <elmar+renovate@athmer.org>",
-  "platform": "github",
-  "repositories": [
-    "elmarx/schema-harvester"
-  ]
-}
