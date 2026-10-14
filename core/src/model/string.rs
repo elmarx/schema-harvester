@@ -1,4 +1,6 @@
-use crate::format::{is_valid_date, is_valid_datetime, is_valid_time, is_valid_uuid};
+use crate::vendor::jsonschema::format::{
+    is_valid_date, is_valid_datetime, is_valid_time, is_valid_uuid,
+};
 use strum_macros;
 use strum_macros::IntoStaticStr;
 

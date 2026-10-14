@@ -1,4 +1,4 @@
-//! "stolen" from https://github.com/Stranger6667/jsonschema/blob/f94b36d4f55ec12a0d77c2797626a8539e4197ed/crates/jsonschema/src/keywords/format.rs
+//! "stolen" from <https://github.com/Stranger6667/jsonschema/blob/f94b36d4f55ec12a0d77c2797626a8539e4197ed/crates/jsonschema/src/keywords/format.rs>
 
 use uuid_simd::{Out, parse_hyphenated};
 
