@@ -21,16 +21,19 @@ impl Render for AnyNode {
 
 #[cfg(test)]
 mod test {
-    use maplit::{btreemap, btreeset};
     use serde_json::json;
+    use std::collections::{BTreeMap, BTreeSet};
 
     use crate::model::{AnyNode, IntegerNode, NodeType, ObjectNode, ObjectProperty, StringNode};
     use crate::renderer::Render;
 
     #[test]
     fn test_any() {
-        let node_type: NodeType =
-            AnyNode::new(btreeset![StringNode::default().into(), NodeType::Boolean]).into();
+        let node_type: NodeType = AnyNode::new(BTreeSet::from([
+            StringNode::default().into(),
+            NodeType::Boolean,
+        ]))
+        .into();
 
         let actual = node_type.render();
 
@@ -47,7 +50,8 @@ mod test {
 
     #[test]
     fn test_any_one() {
-        let node_type: NodeType = AnyNode::new(btreeset![StringNode::default().into()]).into();
+        let node_type: NodeType =
+            AnyNode::new(BTreeSet::from([StringNode::default().into()])).into();
 
         let actual = node_type.render();
 
@@ -63,7 +67,7 @@ mod test {
 
     #[test]
     fn test_any_empty() {
-        let node_type: NodeType = AnyNode::new(btreeset![]).into();
+        let node_type: NodeType = AnyNode::new(BTreeSet::from([])).into();
 
         let actual = node_type.render();
 
@@ -77,12 +81,10 @@ mod test {
 
     #[test]
     fn test_any_complex_types() {
-        let node_type: NodeType = AnyNode::new(btreeset![
-            ObjectNode::new(btreemap! {
-                "id".to_string() => ObjectProperty::new(IntegerNode::new())
-            })
-            .into()
-        ])
+        let node_type: NodeType = AnyNode::new(BTreeSet::from([ObjectNode::new(BTreeMap::from(
+            [("id".to_string(), ObjectProperty::new(IntegerNode::new()))],
+        ))
+        .into()]))
         .into();
 
         let actual = node_type.render();

@@ -40,17 +40,18 @@ impl Render for ObjectNode {
 
 #[cfg(test)]
 mod test {
-    use maplit::btreemap;
     use serde_json::json;
+    use std::collections::BTreeMap;
 
     use crate::model::{NodeType, ObjectNode, ObjectProperty, StringNode};
     use crate::renderer::Render;
 
     #[test]
     fn test_object() {
-        let hypothesis: NodeType = ObjectNode::new(btreemap! {
-            "name".to_string() => ObjectProperty::new(StringNode::default()),
-        })
+        let hypothesis: NodeType = ObjectNode::new(BTreeMap::from([(
+            "name".to_string(),
+            ObjectProperty::new(StringNode::default()),
+        )]))
         .into();
 
         let actual = hypothesis.render();

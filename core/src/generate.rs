@@ -80,8 +80,8 @@ mod test {
         AnyNode, ArrayNode, IntegerNode, NodeType, NumberNode, ObjectNode, ObjectProperty,
         StringNode,
     };
-    use maplit::{btreemap, btreeset};
     use serde_json::json;
+    use std::collections::{BTreeMap, BTreeSet};
 
     #[test]
     fn test_null() {
@@ -117,15 +117,22 @@ mod test {
     fn test_array_merge_objects() {
         let dom = json!(["one", 1, {"a": 1}, {"a": "1"}]);
         let actual = NodeType::from(&dom);
-        let expected = ArrayNode::from(btreeset! {
+        let expected = ArrayNode::from(BTreeSet::from([
             StringNode::default().into(),
             IntegerNode::new().into(),
-            ObjectNode::new(btreemap! {
-                    "a".to_string() => ObjectProperty { required: true, node_type: AnyNode::new(
-                        btreeset! { StringNode::default().into(), IntegerNode::new().into() }
-                    ).into()}
-                }).into()
-        })
+            ObjectNode::new(BTreeMap::from([(
+                "a".to_string(),
+                ObjectProperty {
+                    required: true,
+                    node_type: AnyNode::new(BTreeSet::from([
+                        StringNode::default().into(),
+                        IntegerNode::new().into(),
+                    ]))
+                    .into(),
+                },
+            )]))
+            .into(),
+        ]))
         .into();
 
         assert_eq!(actual, expected);
@@ -152,10 +159,10 @@ mod test {
 
         assert_eq!(
             NodeType::from(&dom),
-            ArrayNode::from(btreeset![
+            ArrayNode::from(BTreeSet::from([
                 IntegerNode::new().into(),
                 StringNode::default().into()
-            ])
+            ]))
             .into()
         );
     }
@@ -166,10 +173,16 @@ mod test {
             "name": "Schokoladenbrunnen",
             "length": 100
         });
-        let expected = ObjectNode::new(btreemap! {
-            "name".to_string() => ObjectProperty::new(StringNode::default()),
-            "length".to_string() => ObjectProperty::new(IntegerNode::new()),
-        })
+        let expected = ObjectNode::new(BTreeMap::from([
+            (
+                "name".to_string(),
+                ObjectProperty::new(StringNode::default()),
+            ),
+            (
+                "length".to_string(),
+                ObjectProperty::new(IntegerNode::new()),
+            ),
+        ]))
         .into();
 
         assert_eq!(NodeType::from(&dom), expected);

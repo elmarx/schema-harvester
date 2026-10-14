@@ -1,5 +1,5 @@
 use crate::model::{AnyNode, NodeType, StringNode};
-use maplit::btreeset;
+use std::collections::BTreeSet;
 
 pub fn merge(a: StringNode, b: StringNode) -> NodeType {
     #[expect(
@@ -12,6 +12,6 @@ pub fn merge(a: StringNode, b: StringNode) -> NodeType {
         // if they're the same, keep it
         (None, None) => StringNode::default().into(),
         (Some(a), Some(b)) if a == b => StringNode::new(Some(a.to_owned())).into(),
-        (Some(_), Some(_)) => AnyNode::new(btreeset![a.into(), b.into()]).into(),
+        (Some(_), Some(_)) => AnyNode::new(BTreeSet::from([a.into(), b.into()])).into(),
     }
 }

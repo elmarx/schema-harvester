@@ -20,18 +20,18 @@ impl Render for ArrayNode {
 
 #[cfg(test)]
 mod test {
-    use maplit::btreeset;
     use serde_json::json;
+    use std::collections::BTreeSet;
 
     use crate::model::{ArrayNode, IntegerNode, NodeType, StringNode};
     use crate::renderer::Render;
 
     #[test]
     fn test_array() {
-        let hypothesis: NodeType = ArrayNode::from(btreeset![
+        let hypothesis: NodeType = ArrayNode::from(BTreeSet::from([
             StringNode::default().into(),
-            IntegerNode::new().into()
-        ])
+            IntegerNode::new().into(),
+        ]))
         .into();
 
         let actual = hypothesis.render();

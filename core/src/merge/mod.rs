@@ -1,7 +1,8 @@
+use std::collections::BTreeSet;
+
 use crate::merge::array::merge_array;
 use crate::merge::object::merge_object;
 use crate::model::{AnyNode, NodeType, SchemaHypothesis};
-use maplit::btreeset;
 
 mod any;
 mod array;
@@ -35,18 +36,18 @@ pub fn merge_node_type(a: NodeType, b: NodeType) -> NodeType {
         (NodeType::Array(a), NodeType::Array(b)) => merge_array(a, b).into(),
         (NodeType::Any(xs), NodeType::Any(ys)) => any::merge_any(&xs, ys),
         (a @ NodeType::Any(_), b) | (b, a @ NodeType::Any(_)) => {
-            merge_node_type(a, AnyNode::new(btreeset![b]).into())
+            merge_node_type(a, AnyNode::new(BTreeSet::from([b])).into())
         }
         (a, b) => merge_node_type(
-            AnyNode::new(btreeset![a]).into(),
-            AnyNode::new(btreeset![b]).into(),
+            AnyNode::new(BTreeSet::from([a])).into(),
+            AnyNode::new(BTreeSet::from([b])).into(),
         ),
     }
 }
 
 #[cfg(test)]
 mod test {
-    use maplit::{btreemap, btreeset};
+    use std::collections::{BTreeMap, BTreeSet};
 
     use crate::merge::merge_node_type;
     use crate::model::{
@@ -83,10 +84,10 @@ mod test {
 
         assert_eq!(
             actual,
-            AnyNode::new(btreeset![
+            AnyNode::new(BTreeSet::from([
                 StringNode::new(Some(StringFormat::DateTime)).into(),
                 StringNode::new(Some(StringFormat::Time)).into()
-            ])
+            ]))
             .into()
         );
     }
@@ -136,20 +137,24 @@ mod test {
 
     #[test]
     fn test_merge_array_with_different_types() {
-        let a = ArrayNode::from(btreeset![
+        let a = ArrayNode::from(BTreeSet::from([
             IntegerNode::new().into(),
-            StringNode::default().into()
-        ])
+            StringNode::default().into(),
+        ]))
         .into();
-        let b = ArrayNode::from(btreeset![IntegerNode::new().into(), NodeType::Boolean]).into();
+        let b = ArrayNode::from(BTreeSet::from([
+            IntegerNode::new().into(),
+            NodeType::Boolean,
+        ]))
+        .into();
 
         assert_eq!(
             merge_node_type(a, b),
-            ArrayNode::from(btreeset![
+            ArrayNode::from(BTreeSet::from([
                 IntegerNode::new().into(),
                 StringNode::default().into(),
                 NodeType::Boolean
-            ])
+            ]))
             .into()
         );
     }
@@ -157,37 +162,45 @@ mod test {
     #[test]
     fn test_merge_array_with_objects() {
         let a = ArrayNode::new(
-            ObjectNode::new(btreemap! {
-                "id".to_string() => ObjectProperty {
+            ObjectNode::new(BTreeMap::from([(
+                "id".to_string(),
+                ObjectProperty {
                     node_type: IntegerNode::new().into(),
-                    required: true
-                }
-            })
+                    required: true,
+                },
+            )]))
             .into(),
         );
         let b = ArrayNode::new(
-            ObjectNode::new(btreemap! {
-                "name".to_string() => ObjectProperty {
+            ObjectNode::new(BTreeMap::from([(
+                "name".to_string(),
+                ObjectProperty {
                     node_type: StringNode::default().into(),
-                    required: true
-                }
-            })
+                    required: true,
+                },
+            )]))
             .into(),
         );
 
         assert_eq!(
             merge_node_type(a.into(), b.into()),
             ArrayNode::new(
-                ObjectNode::new(btreemap! {
-                    "id".to_string() => ObjectProperty {
-                        node_type: IntegerNode::new().into(),
-                        required: false
-                    },
-                    "name".to_string() => ObjectProperty {
-                        node_type: StringNode::default().into(),
-                        required: false
-                    }
-                })
+                ObjectNode::new(BTreeMap::from([
+                    (
+                        "id".to_string(),
+                        ObjectProperty {
+                            node_type: IntegerNode::new().into(),
+                            required: false
+                        }
+                    ),
+                    (
+                        "name".to_string(),
+                        ObjectProperty {
+                            node_type: StringNode::default().into(),
+                            required: false
+                        }
+                    )
+                ]))
                 .into()
             )
             .into()
@@ -196,21 +209,34 @@ mod test {
 
     #[test]
     fn test_merge_object_additional_property_b() {
-        let a = ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::default())
-        });
+        let a = ObjectNode::new(BTreeMap::from([(
+            String::from("id"),
+            ObjectProperty::new(StringNode::default()),
+        )]));
 
-        let b = ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::default()),
-            String::from("name") => ObjectProperty::new(StringNode::default())
-        });
+        let b = ObjectNode::new(BTreeMap::from([
+            (
+                String::from("id"),
+                ObjectProperty::new(StringNode::default()),
+            ),
+            (
+                String::from("name"),
+                ObjectProperty::new(StringNode::default()),
+            ),
+        ]));
 
         let actual = merge_node_type(a.into(), b.into());
 
-        let expected = ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::default()),
-            String::from("name") => ObjectProperty::new(StringNode::default()).optional()
-        })
+        let expected = ObjectNode::new(BTreeMap::from([
+            (
+                String::from("id"),
+                ObjectProperty::new(StringNode::default()),
+            ),
+            (
+                String::from("name"),
+                ObjectProperty::new(StringNode::default()).optional(),
+            ),
+        ]))
         .into();
 
         assert_eq!(actual, expected);
@@ -218,20 +244,33 @@ mod test {
 
     #[test]
     fn test_merge_object_property_missing_in_b() {
-        let a = ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::default()),
-            String::from("name") => ObjectProperty::new(StringNode::default())
-        });
+        let a = ObjectNode::new(BTreeMap::from([
+            (
+                String::from("id"),
+                ObjectProperty::new(StringNode::default()),
+            ),
+            (
+                String::from("name"),
+                ObjectProperty::new(StringNode::default()),
+            ),
+        ]));
 
-        let b = ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::default()),
-        });
+        let b = ObjectNode::new(BTreeMap::from([(
+            String::from("id"),
+            ObjectProperty::new(StringNode::default()),
+        )]));
 
         let actual = merge_node_type(a.into(), b.into());
-        let expected = ObjectNode::new(btreemap! {
-            String::from("id") => ObjectProperty::new(StringNode::default()),
-            String::from("name") => ObjectProperty::new(StringNode::default()).optional()
-        })
+        let expected = ObjectNode::new(BTreeMap::from([
+            (
+                String::from("id"),
+                ObjectProperty::new(StringNode::default()),
+            ),
+            (
+                String::from("name"),
+                ObjectProperty::new(StringNode::default()).optional(),
+            ),
+        ]))
         .into();
 
         assert_eq!(actual, expected);
@@ -246,27 +285,27 @@ mod test {
 
         assert_eq!(
             actual,
-            AnyNode::new(btreeset![
+            AnyNode::new(BTreeSet::from([
                 StringNode::default().into(),
                 IntegerNode::new().into()
-            ])
+            ]))
             .into()
         );
     }
 
     #[test]
     fn test_merge_any_and_type() {
-        let a = AnyNode::new(btreeset![IntegerNode::new().into()]).into();
+        let a = AnyNode::new(BTreeSet::from([IntegerNode::new().into()])).into();
         let b = StringNode::default().into();
 
         let actual = merge_node_type(a, b);
 
         assert_eq!(
             actual,
-            AnyNode::new(btreeset![
+            AnyNode::new(BTreeSet::from([
                 IntegerNode::new().into(),
                 StringNode::default().into()
-            ])
+            ]))
             .into()
         );
     }
@@ -274,26 +313,26 @@ mod test {
     #[test]
     fn test_merge_type_and_any() {
         let a = StringNode::default().into();
-        let b = AnyNode::new(btreeset![IntegerNode::new().into()]).into();
+        let b = AnyNode::new(BTreeSet::from([IntegerNode::new().into()])).into();
 
         let actual = merge_node_type(a, b);
 
         assert_eq!(
             actual,
-            AnyNode::new(btreeset![
+            AnyNode::new(BTreeSet::from([
                 IntegerNode::new().into(),
                 StringNode::default().into()
-            ])
+            ]))
             .into()
         );
     }
 
     #[test]
     fn test_merge_existing_type_and_any() {
-        let a = AnyNode::new(btreeset![
+        let a = AnyNode::new(BTreeSet::from([
             StringNode::default().into(),
-            IntegerNode::new().into()
-        ])
+            IntegerNode::new().into(),
+        ]))
         .into();
         let b = StringNode::default().into();
 
@@ -301,10 +340,10 @@ mod test {
 
         assert_eq!(
             actual,
-            AnyNode::new(btreeset![
+            AnyNode::new(BTreeSet::from([
                 StringNode::default().into(),
                 IntegerNode::new().into()
-            ])
+            ]))
             .into()
         );
     }
