@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let iterator = deserializer.into_iter::<serde_json::Value>();
 
     let mut current_hypothesis = SchemaHypothesis::new(
-        "https:://github.com/elmarx/schema-harvester".to_string(),
+        "https://github.com/elmarx/schema-harvester".to_string(),
         "Sample".to_string(),
         "Auto-generated schema".to_string(),
     );
